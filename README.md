@@ -1,12 +1,12 @@
 # snippet-cli
 An entry based journaling application for your console/terminal built in [Deno](https://deno.land).
 
-# Usage
+## Usage
 `snpt [OPTIONS] [INPUT]`
 
-# Options
+## Options
 ### Display
---today, --today
+- --today, --today
     Display today's entries.
 
 -a, --all
