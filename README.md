@@ -83,7 +83,7 @@ snpt [OPTIONS] [INPUT]
 
 ### Date Formats
 
-- YYYY-MM-DD **(e.g. 2020-06-16)**
+- YYYY-MM-DD **(e.g. 2020-04-14)**
 - DD-MM-YYYY **(e.g. 16-06-2020)**
 - DD-MM-YY **(e.g. 16-06-20)**
 - YY-MM-DD **(e.g. 20-06-16)**
@@ -92,6 +92,12 @@ snpt [OPTIONS] [INPUT]
 - M **(e.g. 6, 06, 2, 4, 09, 12)**
 - YYYY **(e.g. 2020, 2016)**
 - YY **(e.g. 20, 18, 14, 98)**
+
+### Time Formats
+- h a (e.g. 6 am, 5pm)
+- h:mm a (e.g. 5:02 am)
+- h:mm (e.g. 16:04)
+- h:mm:ss a (11:22:22 pm)
 
 ## Notes
 - It is in active development, new features and fixes are being added regularly.
