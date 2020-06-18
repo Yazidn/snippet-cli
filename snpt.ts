@@ -47,6 +47,7 @@ if (flags.h || flags.help) help();
 // Global: Used by functions below.
 let search_results :any[] = [];
 const date_input_formats = ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M', 'MM-YYYY', 'M', 'MM', 'YYYY', 'YY', 'Y'];
+const time_input_formats = ["h a", "h:mm a", "h:mm", "h:mm:ss a"];
 
 async function display_entries_default() {
     if (flags.a || flags.all) display_all_entries();
@@ -189,9 +190,23 @@ async function write_entry(flag :any) {
     tags = [...new Set(tags)];
     
     const store = await db.get('entries');
-    const new_entry = { id: v4.generate(), text: flag,
-        created: flags.set ? moment(flags.set, date_input_formats).format("dddd, MMMM Do YYYY, h:mm:ss a"):moment().format("dddd, MMMM Do YYYY, h:mm:ss a"),
-        tags }
+
+    const set = flags.set;
+    const timeset = flags.timeset;
+  
+    const write_moment = moment();
+    const date = set
+      ? moment(set, date_input_formats).format("YYYY-MM-DD")
+      : write_moment.format("YYYY-MM-DD");
+    const time = timeset
+      ? moment(timeset, time_input_formats).format("h:mm:ss a")
+      : write_moment.format("h:mm:ss a");
+  
+    const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
+      "dddd, MMMM Do YYYY, h:mm:ss a",
+    );
+
+    const new_entry = { id: v4.generate(), text: flag, created, tags }
     const updated_store = [new_entry, ...store];
     await db.set('entries', updated_store);
 
