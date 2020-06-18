@@ -6,11 +6,9 @@ An entry based journaling application for your console/terminal built in [Deno](
 
 ## Options
 ### Display
-- --today, --today
-    Display today's entries.
 
--a, --all
-    Display all entries since day one.
+- Display today's entries. `--today`
+- Display all entries since day one. `-a, --all`
 
 -v, --view <option>
     Specify how to display your entries.
