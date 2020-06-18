@@ -2,7 +2,7 @@
 An entry based journaling application for your console/terminal built in [Deno](https://deno.land).
 
 # Usage
-snpt [OPTIONS] [INPUT]
+`snpt [OPTIONS] [INPUT]`
 
 # Options
 ### Display
