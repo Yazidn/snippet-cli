@@ -30,8 +30,11 @@ snpt [OPTIONS] [INPUT]
 @ or #
     Use @ or # to create and use tags in your entries. (e.g. @deno #new_tag)
 
---set, -a <entry> --set <date>
+--set, -w <entry> --set <date>
     Specify a date when writing an entry.
+    
+--timeset, -w <entry> --timeset <time>
+    Specify a time when writing an entry
 
 -e, --edit <entry_id> <updated_entry_text>
     Edit an existing entry
