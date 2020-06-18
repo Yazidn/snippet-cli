@@ -4,23 +4,12 @@ An entry based journaling application for your console/terminal built in [Deno](
 ## Usage
 `snpt [OPTIONS] [INPUT]`
 
-## Options
 ### Display
-
 - Display today's entries. `--today`
 - Display all entries since day one. `-a, --all`
-
--v, --view <option>
-    Specify how to display your entries.
-    OPTIONS:
-        - mini
-        - compact
-        - table
-        - tree (default)
-
---tags, --tags
-    Display a list of all your tags.
-
+- Specify how to display your entries. `-v, --view mini, compact, table, tree (default)`
+- Display a list of all your tags. `--tags`
+    
 ### Write
 -w, --write <entry>
     Write a new entry
@@ -92,10 +81,10 @@ An entry based journaling application for your console/terminal built in [Deno](
 - YY **(e.g. 20, 18, 14, 98)**
 
 ### Time Formats
-- h a (e.g. 6 am, 5pm)
-- h:mm a (e.g. 5:02 am)
-- h:mm (e.g. 16:04)
-- h:mm:ss a (11:22:22 pm)
+- h a **(e.g. 6 am, 5pm)**
+- h:mm a **(e.g. 5:02 am)**
+- h:mm **(e.g. 16:04)**
+- h:mm:ss a **(e.g. 11:22:22 pm)**
 
 ## Notes
 - It is in active development, new features and fixes are being added regularly.
