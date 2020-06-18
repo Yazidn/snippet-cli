@@ -1,4 +1,4 @@
-
+export default `
 snippet-cli 0.1
 An entry based journaling application.
 
@@ -97,4 +97,4 @@ OPTIONS:
         M (e.g. 6, 06, 2, 4, 09, 12)
         YYYY (e.g. 2020, 2016)
         YY (e.g. 20, 18, 14, 98)
-        
+        `;

@@ -5,6 +5,7 @@ import { Store } from 'https://cdn.depjs.com/store/mod.ts';
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
+import h_help from './help.ts';
 
 const flags = parse(Deno.args), args = flags._;
 const db = new Store({ name: 'snpt', path: './db' });
@@ -258,4 +259,5 @@ async function import_entries(flag :any) {
 
 // Extras
 async function reset() { await db.clear() }
-async function help() { console.log(await Deno.readTextFile('./help')) }
+
+async function help() { console.log(h_help) }
