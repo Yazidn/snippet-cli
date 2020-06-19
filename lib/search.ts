@@ -87,23 +87,34 @@ async function is_between_by(input: any, property: string) {
 async function last(flag: any) {
   let search_results: any[] = [];
 
-  const reg_ex = /(\d+)(\w+)/g;
-  const n_dmwy = reg_ex.exec(flag);
+  let _reg_ex = /(\d*)(day|week|month|year)/g;
+  let matches = _reg_ex.exec(flag);
+  let count;
+  let property;
 
-  if (flag === "day" || flag === "yesterday")
-    search_results = await last_by(1, "days", "day");
-  else if (flag === "week") search_results = await last_by(1, "weeks", "week");
-  else if (flag === "month")
-    search_results = await last_by(1, "months", "month");
-  else if (flag === "year") search_results = await last_by(1, "years", "year");
-  else if (moment(flag, "dddd", true).isValid())
+  if (matches) {
+    count = parseInt(matches[1]);
+    property = matches[2];
+
+    console.log(count || 1, property, 'ago');
+  }
+
+  search_results = await last_by(count || 1, property + 's', property);
+
+  const _day_reg_ex = /(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/gi;
+  const day_matches = _day_reg_ex.exec(flag);
+  let day;
+
+  if (day_matches) {
+    day = day_matches[0];
     search_results = await last_by_day(flag);
-  else if (n_dmwy) search_results = await last_by_dynamic(n_dmwy);
+    
+  }
 
   return search_results;
 }
 
-async function last_by(count: number, what: string, property: string) {
+async function last_by(count: number, what: string, property: any) {
   const store = await db.get("entries");
 
   return store.filter((e: any) => {
@@ -125,20 +136,6 @@ async function last_by_day(flag: any) {
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
         moment(flag, "dddd").subtract(7, "days"),
         "day"
-      )
-    )
-      return e;
-  });
-}
-
-async function last_by_dynamic(n_dmwy: any) {
-  const store = await db.get("entries");
-
-  return store.filter((e: any) => {
-    if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`),
-        n_dmwy[2]
       )
     )
       return e;
