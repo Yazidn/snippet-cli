@@ -114,7 +114,7 @@ async function search_by_tag(flag :any) {
     else console.log(`Couldn't find the tag "${flag}" anywhere.`);
 }
 
-const search = {
+const _search = {
     is_between,
     is_same,
     last,
@@ -122,4 +122,4 @@ const search = {
     search_by_text
 };
 
-export default search;
+export default _search;

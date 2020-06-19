@@ -1,6 +1,7 @@
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { parse } from "https://deno.land/std/flags/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
+import db from './database.ts';
 
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
@@ -9,27 +10,18 @@ import {date_input_formats, time_input_formats} from './lib/formats.ts';
 import h_help from './lib/help.ts';
 
 import search from './lib/search.ts';
-
-import db from './database.ts';
+import {display, init_display} from './lib/display.ts';
 
 const flags = parse(Deno.args), args = flags._;
+init_display();
 
 
 
 
 // Display
-if (Object.keys(flags).length !== 1) display_entries_default();
-else console.log("Use -h or --help to get started.");
-if (flags.tags) display_all_tags();
-
-// Search: Text & Tags
-// if (flags.s || flags.search) search_by_text(flags.s || flags.search);
-// if (flags.t || flags.tag) search_by_tag(flags.t || flags.tag);
-
-// Search: Date
-// if (flags.d || flags.date) is_same(flags.d || flags.date);
-// if (flags.f && flags.t || flags.from && flags.to) is_between(flags .f ? [flags.f, flags.t] : [flags.from, flags.to]);
-// if (flags.l || flags.last) last(flags.l || flags.last);
+// if (Object.keys(flags).length !== 1) display.display_entries_default();
+// else console.log("Use -h or --help to get started.");
+// if (flags.tags) display.display_all_tags();
 
 // Search: Text & Tags
 if (flags.s || flags.search) display(await search.search_by_text(flags.s || flags.search));
@@ -59,42 +51,42 @@ if (flags.h || flags.help) help();
 // Global: Used by functions below.
 let search_results :any[] = [];
 
-async function display_entries_default() {
-    if (flags.a || flags.all) display_all_entries();
-    else if (flags.today) display_today_entries();
-}
+// async function display_entries_default() {
+//     if (flags.a || flags.all) display_all_entries();
+//     else if (flags.today) display_today_entries();
+// }
 
-async function display_today_entries() {
-        const store = await db.get('entries');
-        search_results = store.filter((e: any) => {
-            if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment(), 'day')) return e;
-        })
-        display(search_results);
-}
+// async function display_today_entries() {
+//         const store = await db.get('entries');
+//         search_results = store.filter((e: any) => {
+//             if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment(), 'day')) return e;
+//         })
+//         display(search_results);
+// }
 
-async function display_all_entries() {
-    const entries = await db.get('entries');
-    if (await db.has('entries')) display(await db.get('entries'));
-}
+// async function display_all_entries() {
+//     const entries = await db.get('entries');
+//     if (await db.has('entries')) display(await db.get('entries'));
+// }
 
-async function display_all_tags() { display(await db.get('tags'), true) }
+// async function display_all_tags() { display(await db.get('tags'), true) }
 
-async function display(output :any, tags? :boolean) {
-    if (output.length === 0) {
-        console.log("Nothing to display!");
-    } else {
-        if (!tags) {
-            if (flags.v === 'table') console.table(output);
-            else if (flags.v === 'mini') console.log(table(output, ['text']));
-            else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
-            else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
-            else {
-                const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
-                console.log(jsonTree(tbl_no_tags_array , false));
-            }
-        } else console.log(jsonTree(output, true));
-    }
-}
+// async function display(output :any, tags? :boolean) {
+//     if (output.length === 0) {
+//         console.log("Nothing to display!");
+//     } else {
+//         if (!tags) {
+//             if (flags.v === 'table') console.table(output);
+//             else if (flags.v === 'mini') console.log(table(output, ['text']));
+//             else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
+//             else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
+//             else {
+//                 const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
+//                 console.log(jsonTree(tbl_no_tags_array , false));
+//             }
+//         } else console.log(jsonTree(output, true));
+//     }
+// }
 
 // async function is_same(input: any) {
 //     const is_day = moment(input, ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
@@ -231,7 +223,9 @@ async function write_entry(flag :any) {
         await db.set('tags', updated_tags_store); 
     }
 
-    display_today_entries();
+    // display_today_entries();
+    display(await search.is_same(date));
+    // search for day where entry was added
 }
 
 async function edit_entry(flag :any) {
@@ -243,7 +237,10 @@ async function edit_entry(flag :any) {
         const updated_store =[entry, ...semi_updated_store];
         await db.set('entries', updated_store);
         
-        display_today_entries();
+        // display_today_entries();
+        const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
+        display(await search.is_same(date));
+        // search for day where entry was edited
     } else console.log('Specified ID is incorrect.');
 }
 
@@ -254,7 +251,11 @@ async function delete_entry(flag :any) {
         const updated_store = store.filter((e: any) => e.id !== flag);
         await db.set('entries', updated_store);
         
-        display_today_entries();
+        // display_today_entries();
+        // search for day where entry was deleted
+        const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
+        display(await search.is_same(date));
+        
     } else console.log('Specified ID is incorrect.');
 }
 
