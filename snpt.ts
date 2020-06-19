@@ -84,33 +84,28 @@ async function display(output? :any, tags? :boolean) {
 }
 
 async function is_same(input: any) {
-    const store = await db.get('entries');
-
     const is_day = moment(input, ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
     const is_month = moment(input, ['MM-YYYY', 'M', 'MM'], true).isValid();
     const is_year = moment(input, ['YYYY', 'YY', 'Y'], true).isValid();
     
-    const input_to_moment = moment(input, date_input_formats);
-    
-    if (is_day) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'day')) return e;
-    })
-    else if (is_month) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'month')) return e;
-    })
-    else if (is_year) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'year')) return e;
-    })
+    if (is_day) search_results = await is_same_by(input, 'day');
+    else if (is_month) search_results = await is_same_by(input, 'month');
+    else if (is_year) search_results = await is_same_by(input, 'year');
 
     display(search_results);
 }
 
-async function is_between(input :any) {
+async function is_same_by(input: any, property :string) {
     const store = await db.get('entries');
+    const input_to_moment = moment(input, date_input_formats);
 
-    const first_moment = moment(input[0], date_input_formats);
-    const second_moment = moment(input[1], date_input_formats);
+    return store.filter((e: any) => {
+        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, property)) return e;
+    })
+}
 
+
+async function is_between(input :any) {
     const is_day = moment(input[0],
         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid() && moment(input[1],
         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
@@ -121,17 +116,21 @@ async function is_between(input :any) {
     const is_year = moment(input[0], ['YYYY', 'YY', 'Y'], true).isValid() && moment(input[1],
         ['YYYY', 'YY', 'Y'], true).isValid();
 
-    if (is_day) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'day', '[]')) return e;
-    })
-    else if (is_month) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'month', '[]')) return e;
-    })
-    else if (is_year) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'year', '[]')) return e;
-    })
+    if (is_day) search_results = await is_between_by(input, 'day');
+    else if (is_month) search_results = await is_between_by(input, 'month');
+    else if (is_year) search_results = await is_between_by(input, 'year');
 
     display(search_results);
+}
+
+async function is_between_by(input: any, property :string) {
+    const store = await db.get('entries');
+    const first_moment = moment(input[0], date_input_formats);
+    const second_moment = moment(input[1], date_input_formats);
+
+    return store.filter((e: any) => {
+        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, property, '[]')) return e;
+    })
 }
 
 async function last(flag :any) {
