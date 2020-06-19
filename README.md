@@ -3,8 +3,10 @@ An entry based journaling application for your console/terminal built in [Deno](
 
 ## Installation
 1. You will need [Deno](https://deno.land) to install and run snippet.
+
 2. Once you have Deno. Install snippet-cli by running the following command:
-    - `deno install --allow-read --allow-write -n snpt https://raw.githubusercontent.com/Yazidn/snippet-cli/master/bundle/install.ts`
+    - **`deno install --allow-read --allow-write -n snpt https://raw.githubusercontent.com/Yazidn/snippet-cli/master/bundle/install.ts`**
+    
 3. After you've added **.deno/bin** to your **$PATH**, you should be able to run `snpt` and see the following:
     - `Use -h or --help to get started.`
 
