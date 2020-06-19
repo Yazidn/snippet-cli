@@ -64,23 +64,26 @@ async function display_today_entries() {
 
 async function display_all_entries() {
     const entries = await db.get('entries');
-    if (await db.has('entries') && entries.length !== 0) display(await db.get('entries'));
-    else console.log('You got nothing.');
+    if (await db.has('entries')) display(await db.get('entries'));
 }
 
 async function display_all_tags() { display(await db.get('tags'), true) }
 
 async function display(output? :any, tags? :boolean) {
-    if (!tags) {
-        if (flags.v === 'table') console.table(output);
-        else if (flags.v === 'mini') console.log(table(output, ['text']));
-        else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
-        else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
-        else {
-            const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
-            console.log(jsonTree(tbl_no_tags_array , false));
-        }
-    } else console.log(jsonTree(output, true));
+    if (output.length === 0) {
+        console.log("Nothing to display!");
+    } else {
+        if (!tags) {
+            if (flags.v === 'table') console.table(output);
+            else if (flags.v === 'mini') console.log(table(output, ['text']));
+            else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
+            else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
+            else {
+                const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
+                console.log(jsonTree(tbl_no_tags_array , false));
+            }
+        } else console.log(jsonTree(output, true));
+    }
 }
 
 async function is_same(input: any) {
