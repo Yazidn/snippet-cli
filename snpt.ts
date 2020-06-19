@@ -5,6 +5,8 @@ import { Store } from 'https://cdn.depjs.com/store/mod.ts';
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
+
+import {date_input_formats, time_input_formats} from './formats.ts';
 import h_help from './help.ts';
 
 const flags = parse(Deno.args), args = flags._;
@@ -46,8 +48,6 @@ if (flags.h || flags.help) help();
 
 // Global: Used by functions below.
 let search_results :any[] = [];
-const date_input_formats = ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M', 'MM-YYYY', 'M', 'MM', 'YYYY', 'YY', 'Y'];
-const time_input_formats = ["h a", "h:mm a", "h:mm", "h:mm:ss a"];
 
 async function display_entries_default() {
     if (flags.a || flags.all) display_all_entries();
