@@ -5,6 +5,7 @@ import { Store } from 'https://cdn.depjs.com/store/mod.ts';
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
+import {date_input_formats, time_input_formats} from './formats.ts';
 import h_help from './help.ts';
 
 const flags = parse(Deno.args), args = flags._;
@@ -46,8 +47,6 @@ if (flags.h || flags.help) help();
 
 // Global: Used by functions below.
 let search_results :any[] = [];
-const date_input_formats = ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M', 'MM-YYYY', 'M', 'MM', 'YYYY', 'YY', 'Y'];
-const time_input_formats = ["h a", "h:mm a", "h:mm", "h:mm:ss a"];
 
 async function display_entries_default() {
     if (flags.a || flags.all) display_all_entries();
@@ -64,53 +63,51 @@ async function display_today_entries() {
 
 async function display_all_entries() {
     const entries = await db.get('entries');
-    if (await db.has('entries') && entries.length !== 0) display(await db.get('entries'));
-    else console.log('You got nothing.');
+    if (await db.has('entries')) display(await db.get('entries'));
 }
 
 async function display_all_tags() { display(await db.get('tags'), true) }
 
 async function display(output? :any, tags? :boolean) {
-    if (!tags) { // Entries
-        if (flags.v === 'table') console.table(output); // Table
-        else if (flags.v === 'mini') console.log(table(output, ['text'])); // Mini Table
-        else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
-        else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
-        else { // Tree
-            const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
-            console.log(jsonTree(tbl_no_tags_array , false));
-        }
-    } else console.log(jsonTree(output, true)); // Tags
+    if (output.length === 0) {
+        console.log("Nothing to display!");
+    } else {
+        if (!tags) {
+            if (flags.v === 'table') console.table(output);
+            else if (flags.v === 'mini') console.log(table(output, ['text']));
+            else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
+            else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
+            else {
+                const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
+                console.log(jsonTree(tbl_no_tags_array , false));
+            }
+        } else console.log(jsonTree(output, true));
+    }
 }
 
 async function is_same(input: any) {
-    const store = await db.get('entries');
-
     const is_day = moment(input, ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
     const is_month = moment(input, ['MM-YYYY', 'M', 'MM'], true).isValid();
     const is_year = moment(input, ['YYYY', 'YY', 'Y'], true).isValid();
     
-    const input_to_moment = moment(input, date_input_formats);
-    
-    if (is_day) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'day')) return e;
-    })
-    else if (is_month) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'month')) return e;
-    })
-    else if (is_year) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, 'year')) return e;
-    })
+    if (is_day) search_results = await is_same_by(input, 'day');
+    else if (is_month) search_results = await is_same_by(input, 'month');
+    else if (is_year) search_results = await is_same_by(input, 'year');
 
     display(search_results);
 }
 
-async function is_between(input :any) {
+async function is_same_by(input: any, property :string) {
     const store = await db.get('entries');
+    const input_to_moment = moment(input, date_input_formats);
 
-    const first_moment = moment(input[0], date_input_formats);
-    const second_moment = moment(input[1], date_input_formats);
+    return store.filter((e: any) => {
+        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, property)) return e;
+    })
+}
 
+
+async function is_between(input :any) {
     const is_day = moment(input[0],
         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid() && moment(input[1],
         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
@@ -121,17 +118,21 @@ async function is_between(input :any) {
     const is_year = moment(input[0], ['YYYY', 'YY', 'Y'], true).isValid() && moment(input[1],
         ['YYYY', 'YY', 'Y'], true).isValid();
 
-    if (is_day) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'day', '[]')) return e;
-    })
-    else if (is_month) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'month', '[]')) return e;
-    })
-    else if (is_year) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, 'year', '[]')) return e;
-    })
+    if (is_day) search_results = await is_between_by(input, 'day');
+    else if (is_month) search_results = await is_between_by(input, 'month');
+    else if (is_year) search_results = await is_between_by(input, 'year');
 
     display(search_results);
+}
+
+async function is_between_by(input: any, property :string) {
+    const store = await db.get('entries');
+    const first_moment = moment(input[0], date_input_formats);
+    const second_moment = moment(input[1], date_input_formats);
+
+    return store.filter((e: any) => {
+        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, property, '[]')) return e;
+    })
 }
 
 async function last(flag :any) {
