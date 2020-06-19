@@ -12,6 +12,9 @@ import h_help from './lib/help.ts';
 import search from './lib/search.ts';
 import {display, init_display} from './lib/display.ts';
 import write from './lib/write.ts';
+import import_export from './lib/import_export.ts';
+
+import extras from './lib/extras.ts';
 
 const flags = parse(Deno.args), args = flags._;
 init_display();
@@ -39,15 +42,15 @@ if (flags.e || flags.edit) write.edit_entry(flags.e || flags.edit, args);
 if (flags.r || flags.remove) write.remove_entry(flags.r || flags.remove);
 
 // Export
-if (flags.m || flags.markdown) export_entries_md(flags.m || flags.markdown);
-if (flags.j || flags.json) export_entries_json(flags.j || flags.json);
+if (flags.m || flags.markdown) import_export.export_entries_md(flags.m || flags.markdown);
+if (flags.j || flags.json) import_export.export_entries_json(flags.j || flags.json);
 
 // Import
-if (flags.i || flags.import) import_entries(flags.i || flags.import);
+if (flags.i || flags.import) import_export.import_entries(flags.i || flags.import);
 
 // Extras
-if (flags.c || flags.clear) reset();
-if (flags.h || flags.help) help();
+if (flags.c || flags.clear) extras.reset();
+if (flags.h || flags.help) extras.help();
 
 // Global: Used by functions below.
 // let search_results :any[] = [];
@@ -287,6 +290,6 @@ if (flags.h || flags.help) help();
 // }
 
 // Extras
-async function reset() { await db.clear() }
+// async function reset() { await db.clear() }
 
-async function help() { console.log(h_help) }
+// async function help() { console.log(h_help) }
