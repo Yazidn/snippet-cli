@@ -9985,16 +9985,16 @@ System.register(
       } while (tag);
       tags = [...new Set(tags)];
       const store = await database_ts_3.default.get("entries");
-      const set = subflags.set;
-      const timeset = subflags.timeset;
+      const on = subflags.on;
+      const at = subflags.at;
       const write_moment = moment_ts_3.moment();
-      const date = set
-        ? moment_ts_3.moment(set, formats_ts_2.date_input_formats).format(
+      const date = on
+        ? moment_ts_3.moment(on, formats_ts_2.date_input_formats).format(
           "YYYY-MM-DD",
         )
         : write_moment.format("YYYY-MM-DD");
-      const time = timeset
-        ? moment_ts_3.moment(timeset, formats_ts_2.time_input_formats).format(
+      const time = at
+        ? moment_ts_3.moment(at, formats_ts_2.time_input_formats).format(
           "h:mm:ss a",
         )
         : write_moment.format("h:mm:ss a");
@@ -10898,12 +10898,12 @@ System.register(
             await search_ts_2.default.is_same(flags.d || flags.date),
           );
         }
-        if ((flags.f && flags.t) || (flags.from && flags.to)) {
+        if ((flags.f && flags.u) || (flags.from && flags.until)) {
           display_ts_2.display(
             await search_ts_2.default.is_between(
               flags.f
-                ? [flags.f, flags.t]
-                : [flags.from, flags.to],
+                ? [flags.f, flags.u]
+                : [flags.from, flags.until],
             ),
           );
         }
@@ -10915,8 +10915,8 @@ System.register(
         // Write
         if (flags.w || flags.write) {
           write_ts_1.default.write_entry(flags.w || flags.write, {
-            set: flags.set,
-            timeset: flags.timeset,
+            on: flags.on,
+            at: flags.at,
           });
         }
         if (flags.e || flags.edit) {
