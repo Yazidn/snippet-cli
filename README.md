@@ -98,8 +98,6 @@ An entry based journaling application for your console/terminal built in [Deno](
 - M **(e.g. 6, 06, 2, 4, 09, 12)**
 - YYYY **(e.g. 2020, 2016)**
 - YY **(e.g. 20, 18, 14, 98)**
-
-
 - h a **(e.g. 6 am, 5pm)**
 - h:mm a **(e.g. 5:02 am)**
 - h:mm **(e.g. 16:04)**
