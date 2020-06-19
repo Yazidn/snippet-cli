@@ -18,15 +18,15 @@ async function write_entry(flag: any, subflags: any) {
 
   const store = await db.get("entries");
 
-  const set = subflags.set;
-  const timeset = subflags.timeset;
+  const on = subflags.on;
+  const at = subflags.at;
 
   const write_moment = moment();
-  const date = set
-    ? moment(set, date_input_formats).format("YYYY-MM-DD")
+  const date = on
+    ? moment(on, date_input_formats).format("YYYY-MM-DD")
     : write_moment.format("YYYY-MM-DD");
-  const time = timeset
-    ? moment(timeset, time_input_formats).format("h:mm:ss a")
+  const time = at
+    ? moment(at, time_input_formats).format("h:mm:ss a")
     : write_moment.format("h:mm:ss a");
 
   const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(

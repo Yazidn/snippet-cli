@@ -20,10 +20,10 @@ if (flags.t || flags.tag)
 
 if (flags.d || flags.date) display(await search.is_same(flags.d || flags.date));
 
-if ((flags.f && flags.t) || (flags.from && flags.to))
+if ((flags.f && flags.u) || (flags.from && flags.until))
   display(
     await search.is_between(
-      flags.f ? [flags.f, flags.t] : [flags.from, flags.to]
+      flags.f ? [flags.f, flags.u] : [flags.from, flags.until]
     )
   );
 
@@ -32,8 +32,8 @@ if (flags.l || flags.last) display(await search.last(flags.l || flags.last));
 // Write
 if (flags.w || flags.write)
   write.write_entry(flags.w || flags.write, {
-    set: flags.set,
-    timeset: flags.timeset,
+    on: flags.on,
+    at: flags.at,
   });
 
 if (flags.e || flags.edit) write.edit_entry(flags.e || flags.edit, args);

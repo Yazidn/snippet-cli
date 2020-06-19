@@ -2,55 +2,35 @@
 An entry based journaling application for your console/terminal built in [Deno](https://deno.land).
 
 ## Installation
-You will need [Deno](https://deno.land) to install and run snippet. Once you have Deno. Install snippet-cli by using:
-`deno install --allow-read --allow-write -n snpt https://www.dropbox.com/s/2w0giwxbsl3lo72/snpt_install.ts?raw=1`
-
-- After you've added .deno/bin to your $PATH, you should be able to run `snpt` and see some output.
+1. You will need [Deno](https://deno.land) to install and run snippet.
+2. Once you have Deno. Install snippet-cli by running the following command:
+    - `deno install --allow-read --allow-write -n snpt https://raw.githubusercontent.com/Yazidn/snippet-cli/master/bundle/install.ts`
+3. After you've added **.deno/bin** to your **$PATH**, you should be able to run `snpt` and see the following:
+    - `Use -h or --help to get started.`
 
 ## Usage
-`snpt [OPTIONS] [INPUT]`
+- `snpt [OPTIONS] [INPUT]`
 
 ### Display
 - Display today's entries. `--today`
 - Display all entries since day one. `-a, --all`
 - Specify how to display your entries. `-v, --view mini, compact, table, tree (default)`
 - Display a list of all your tags. `--tags`
-    
+
 ### Write
--w, --write <entry>
-    Write a new entry
-
-@ or #
-    Use @ or # to create and use tags in your entries. (e.g. @deno #new_tag)
-
---set, -w <entry> --set <date>
-    Specify a date when writing an entry.
-    
---timeset, -w <entry> --timeset <time>
-    Specify a time when writing an entry
-
--e, --edit <entry_id> <updated_entry_text>
-    Edit an existing entry
-
--r, --remove <entry_id>
-    Remove an entry, provide the ID
+- Write a new entry. `-w, --write`
+- Create and use tags. `@snippet, #snippet`
+- Set the date and/or time of an entry. `--on <date>, --at <time>`
+- Edit an entry. `-e, --edit <entry_id> <updated_entry_text>`
+- Remove an entry. `-r, --remove <entry_id>`
 
 ### Search
--d, --date
-    Display entries for a specified date (See date formats below).
-
--s, --search
-    Search entries by text.
-
--t, --tag
-    Search entries by tag.
-
--f and -t, --from and --to
-    Display entries between two specified dates. (See date formats below).
-
--l, --last
-    A flexible way to go back in time to a specific day or any number of days, weeks, months or years.
-    OPTIONS:
+- Display entries for a specified date *(See date formats below)*. `-d, --date`
+- Search for an entry. `-s, --search`
+- Filter entries by tag. `-t, --tag`
+- Display entries between two specified dates. (See date formats below). `-f <date>, --from <date> & -u <date>, --until <date>`
+- See entries from a specific day or any number of days, weeks, months or years back. `-l <option>, --last <option>`
+    - Options:
         - sunday, Monday, TUESDAY, and so on.
         - day, yeserday, 1day, 2day, 10day, 36day and so on.
         - week, 1week, 10week, 8week and so on.
@@ -58,21 +38,13 @@ You will need [Deno](https://deno.land) to install and run snippet. Once you hav
         - year, 1year, 2year, 5year and so on.
 
 ### Import & Export
--m, --markdown
-    Export your entries to a styled markdown file.
-
--j, --json
-    Export your entries to a restorable JSON file.
-
--i, --import <json_file_path>
-    Export your entries to a restorable JSON file.
+- Export your entries to a styled markdown file. `-m, --markdown`
+- Export your entries to a restorable JSON file. `-j, --json`
+- Import your entries back. (You can only export and import entries at the moment, no tags.) `-i, --import <file>`
 
 ### Extras
--c, --clear
-    Clear everything and reset snippet.
-
--h, --help
-    Display help to get started.
+- Clear everything and reset snippet. `-c, --clear`
+- Display help to get started. `-h, --help`
 
 ### Date Formats
 
