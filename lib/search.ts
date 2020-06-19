@@ -87,8 +87,8 @@ async function is_between_by(input: any, property: string) {
 async function last(flag: any) {
   let search_results: any[] = [];
 
-  let _reg_ex = /(\d*)(day|week|month|year)/g;
-  let matches = _reg_ex.exec(flag);
+  let last_reg_ex = /(\d*)(day|week|month|year)/g;
+  let matches = last_reg_ex.exec(flag);
   let count;
   let property;
 
@@ -96,10 +96,13 @@ async function last(flag: any) {
     count = parseInt(matches[1]);
     property = matches[2];
 
-    console.log(count || 1, property, 'ago');
-  }
-
-  search_results = await last_by(count || 1, property + 's', property);
+    
+    search_results = await merge_last(false, count || 1, property + 's', property);
+  } 
+  // else {
+  //   console.log('Invalid command.')
+  // }
+  
 
   const _day_reg_ex = /(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/gi;
   const day_matches = _day_reg_ex.exec(flag);
@@ -107,20 +110,25 @@ async function last(flag: any) {
 
   if (day_matches) {
     day = day_matches[0];
-    search_results = await last_by_day(flag);
+    search_results = await merge_last(true, 7, 'days', 'day', flag);
     
-  }
+  } 
+  // else {
+  //   console.log('Invalid command.')
+  // }
 
   return search_results;
 }
 
-async function last_by(count: number, what: string, property: any) {
+async function merge_last(day :boolean, count: number, what: string, property: any, flag? :any) {
   const store = await db.get("entries");
+  let _moment = !day? moment(): moment(flag, "dddd");
 
+  console.log(count || 1, property + ('(s)'), 'ago');
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        moment().subtract(count, what),
+        _moment.subtract(count, what),
         property
       )
     )
@@ -128,19 +136,33 @@ async function last_by(count: number, what: string, property: any) {
   });
 }
 
-async function last_by_day(flag: any) {
-  const store = await db.get("entries");
+// async function last_by(count: number, what: string, property: any) {
+//   const store = await db.get("entries");
 
-  return store.filter((e: any) => {
-    if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        moment(flag, "dddd").subtract(7, "days"),
-        "day"
-      )
-    )
-      return e;
-  });
-}
+//   return store.filter((e: any) => {
+//     if (
+//       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+//         moment().subtract(count, what),
+//         property
+//       )
+//     )
+//       return e;
+//   });
+// }
+
+// async function last_by_day(flag: any) {
+//   const store = await db.get("entries");
+
+//   return store.filter((e: any) => {
+//     if (
+//       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+//         moment(flag, "dddd").subtract(7, "days"),
+//         "day"
+//       )
+//     )
+//       return e;
+//   });
+// }
 
 async function search_by_text(flag: any) {
   const store = await db.get("entries");
