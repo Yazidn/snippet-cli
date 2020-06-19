@@ -96,7 +96,7 @@ async function last(flag: any) {
   if (matches ) {
     count = parseInt(matches[1]);
     property = matches[2];
-    search_results = await merge_last(false, count || 1, property + 's', property);
+    search_results = await last_by(false, count || 1, property + 's', property);
   } 
 
   const _day_reg_ex = regex.day;
@@ -105,18 +105,18 @@ async function last(flag: any) {
 
   if (day_matches) {
     day = day_matches[0];
-    search_results = await merge_last(true, 7, 'days', 'day', flag);
+    search_results = await last_by(true, 7, 'days', 'day', flag);
   } 
 
   return search_results;
 }
 
-async function merge_last(day :boolean, count: number, what: string, property: any, flag? :any) {
+async function last_by(day :boolean, count: number, what: string, property: any, flag? :any) {
   const store = await db.get("entries");
   let _moment = !day? moment(): moment(flag, "dddd");
 
   console.log(count || 1, property + ('(s)'), 'ago');
-  
+
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
