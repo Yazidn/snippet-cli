@@ -71,16 +71,16 @@ async function display_all_entries() {
 async function display_all_tags() { display(await db.get('tags'), true) }
 
 async function display(output? :any, tags? :boolean) {
-    if (!tags) { // Entries
-        if (flags.v === 'table') console.table(output); // Table
-        else if (flags.v === 'mini') console.log(table(output, ['text'])); // Mini Table
+    if (!tags) {
+        if (flags.v === 'table') console.table(output);
+        else if (flags.v === 'mini') console.log(table(output, ['text']));
         else if (flags.v === 'compact') console.log(table(output, ['text', 'created']));
         else if (flags.v === 'full') console.log(table(output, ['text', 'created', 'id']));
-        else { // Tree
+        else {
             const tbl_no_tags_array = output.map((e :any) => { return {[e.text]: e.text, [e.created]: e.created, [`ID: ${e.id}`]: e.id} })
             console.log(jsonTree(tbl_no_tags_array , false));
         }
-    } else console.log(jsonTree(output, true)); // Tags
+    } else console.log(jsonTree(output, true));
 }
 
 async function is_same(input: any) {
