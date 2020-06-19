@@ -1,19 +1,21 @@
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { parse } from "https://deno.land/std/flags/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import { Store } from 'https://cdn.depjs.com/store/mod.ts';
+
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
-import {date_input_formats, time_input_formats} from './formats.ts';
-import h_help from './help.ts';
+import {date_input_formats, time_input_formats} from './lib/formats.ts';
+import h_help from './lib/help.ts';
+
+import search from './lib/search.ts';
+
+import db from './database.ts';
 
 const flags = parse(Deno.args), args = flags._;
-const db = new Store({ name: 'snpt', path: './db' });
 
-// Initialization
-if (!await db.has('entries')) await db.set('entries', []);
-if (!await db.has('tags')) await db.set('tags', []);
+
+
 
 // Display
 if (Object.keys(flags).length !== 1) display_entries_default();
@@ -21,13 +23,22 @@ else console.log("Use -h or --help to get started.");
 if (flags.tags) display_all_tags();
 
 // Search: Text & Tags
-if (flags.s || flags.search) search_by_text(flags.s || flags.search);
-if (flags.t || flags.tag) search_by_tag(flags.t || flags.tag);
+// if (flags.s || flags.search) search_by_text(flags.s || flags.search);
+// if (flags.t || flags.tag) search_by_tag(flags.t || flags.tag);
 
 // Search: Date
-if (flags.d || flags.date) is_same(flags.d || flags.date);
-if (flags.f && flags.t || flags.from && flags.to) is_between(flags .f ? [flags.f, flags.t] : [flags.from, flags.to]);
-if (flags.l || flags.last) last(flags.l || flags.last);
+// if (flags.d || flags.date) is_same(flags.d || flags.date);
+// if (flags.f && flags.t || flags.from && flags.to) is_between(flags .f ? [flags.f, flags.t] : [flags.from, flags.to]);
+// if (flags.l || flags.last) last(flags.l || flags.last);
+
+// Search: Text & Tags
+if (flags.s || flags.search) display(await search.search_by_text(flags.s || flags.search));
+if (flags.t || flags.tag) display(await search.search_by_tag(flags.t || flags.tag));
+
+// Search: Date
+if (flags.d || flags.date) display(await search.is_same(flags.d || flags.date));
+if (flags.f && flags.t || flags.from && flags.to) display(await search.is_between(flags .f ? [flags.f, flags.t] : [flags.from, flags.to]));
+if (flags.l || flags.last) display(await search.last(flags.l || flags.last));
 
 // Write
 if (flags.w || flags.write) write_entry(flags.w || flags.write);
@@ -68,7 +79,7 @@ async function display_all_entries() {
 
 async function display_all_tags() { display(await db.get('tags'), true) }
 
-async function display(output? :any, tags? :boolean) {
+async function display(output :any, tags? :boolean) {
     if (output.length === 0) {
         console.log("Nothing to display!");
     } else {
@@ -85,98 +96,98 @@ async function display(output? :any, tags? :boolean) {
     }
 }
 
-async function is_same(input: any) {
-    const is_day = moment(input, ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
-    const is_month = moment(input, ['MM-YYYY', 'M', 'MM'], true).isValid();
-    const is_year = moment(input, ['YYYY', 'YY', 'Y'], true).isValid();
+// async function is_same(input: any) {
+//     const is_day = moment(input, ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
+//     const is_month = moment(input, ['MM-YYYY', 'M', 'MM'], true).isValid();
+//     const is_year = moment(input, ['YYYY', 'YY', 'Y'], true).isValid();
     
-    if (is_day) search_results = await is_same_by(input, 'day');
-    else if (is_month) search_results = await is_same_by(input, 'month');
-    else if (is_year) search_results = await is_same_by(input, 'year');
+//     if (is_day) search_results = await is_same_by(input, 'day');
+//     else if (is_month) search_results = await is_same_by(input, 'month');
+//     else if (is_year) search_results = await is_same_by(input, 'year');
 
-    display(search_results);
-}
+//     display(search_results);
+// }
 
-async function is_same_by(input: any, property :string) {
-    const store = await db.get('entries');
-    const input_to_moment = moment(input, date_input_formats);
+// async function is_same_by(input: any, property :string) {
+//     const store = await db.get('entries');
+//     const input_to_moment = moment(input, date_input_formats);
 
-    return store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, property)) return e;
-    })
-}
+//     return store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(input_to_moment, property)) return e;
+//     })
+// }
 
 
-async function is_between(input :any) {
-    const is_day = moment(input[0],
-        ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid() && moment(input[1],
-        ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
+// async function is_between(input :any) {
+//     const is_day = moment(input[0],
+//         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid() && moment(input[1],
+//         ['YYYY-MM-DD', 'DD-MM-YYYY', 'DD-MM-YY', 'YY-MM-DD', 'M-D', 'D-M'], true).isValid();
     
-    const is_month = moment(input[0], ['MM-YYYY', 'M', 'MM'], true).isValid() && moment(input[1],
-        ['MM-YYYY', 'M', 'MM'], true).isValid();
+//     const is_month = moment(input[0], ['MM-YYYY', 'M', 'MM'], true).isValid() && moment(input[1],
+//         ['MM-YYYY', 'M', 'MM'], true).isValid();
 
-    const is_year = moment(input[0], ['YYYY', 'YY', 'Y'], true).isValid() && moment(input[1],
-        ['YYYY', 'YY', 'Y'], true).isValid();
+//     const is_year = moment(input[0], ['YYYY', 'YY', 'Y'], true).isValid() && moment(input[1],
+//         ['YYYY', 'YY', 'Y'], true).isValid();
 
-    if (is_day) search_results = await is_between_by(input, 'day');
-    else if (is_month) search_results = await is_between_by(input, 'month');
-    else if (is_year) search_results = await is_between_by(input, 'year');
+//     if (is_day) search_results = await is_between_by(input, 'day');
+//     else if (is_month) search_results = await is_between_by(input, 'month');
+//     else if (is_year) search_results = await is_between_by(input, 'year');
 
-    display(search_results);
-}
+//     display(search_results);
+// }
 
-async function is_between_by(input: any, property :string) {
-    const store = await db.get('entries');
-    const first_moment = moment(input[0], date_input_formats);
-    const second_moment = moment(input[1], date_input_formats);
+// async function is_between_by(input: any, property :string) {
+//     const store = await db.get('entries');
+//     const first_moment = moment(input[0], date_input_formats);
+//     const second_moment = moment(input[1], date_input_formats);
 
-    return store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, property, '[]')) return e;
-    })
-}
+//     return store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isBetween(first_moment, second_moment, property, '[]')) return e;
+//     })
+// }
 
-async function last(flag :any) {
-    const store = await db.get('entries');
-    const reg_ex = /(\d+)(\w+)/g
-    const n_dmwy = reg_ex.exec(flag);
+// async function last(flag :any) {
+//     const store = await db.get('entries');
+//     const reg_ex = /(\d+)(\w+)/g
+//     const n_dmwy = reg_ex.exec(flag);
 
-    if (flag === 'day' || flag === 'yesterday') search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'days'), 'day')) return e;
-    })
-    else if (n_dmwy) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`), n_dmwy[2])) return e;
-    })
-    else if (flag === 'week') search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'weeks'), 'week')) return e;
-    })
-    else if (flag === 'month') search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'months'), 'month')) return e;
-    })
-    else if (flag === 'year') search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'years'), 'year')) return e;
-    })
-    else if (moment(flag, 'dddd', true).isValid()) search_results = store.filter((e: any) => {
-        if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment(flag, 'dddd').subtract(7, 'days'), 'day')) return e;
-    })
+//     if (flag === 'day' || flag === 'yesterday') search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'days'), 'day')) return e;
+//     })
+//     else if (n_dmwy) search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`), n_dmwy[2])) return e;
+//     })
+//     else if (flag === 'week') search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'weeks'), 'week')) return e;
+//     })
+//     else if (flag === 'month') search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'months'), 'month')) return e;
+//     })
+//     else if (flag === 'year') search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment().subtract(1, 'years'), 'year')) return e;
+//     })
+//     else if (moment(flag, 'dddd', true).isValid()) search_results = store.filter((e: any) => {
+//         if (moment(e.created, 'dddd, MMMM Do YYYY, h:mm:ss a').isSame(moment(flag, 'dddd').subtract(7, 'days'), 'day')) return e;
+//     })
 
-    display(search_results);
-}
+//     display(search_results);
+// }
 
-async function search_by_text(flag :any) {
-    const store = await db.get('entries');
-    const search_results = store.filter((e: any) => {
-        if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
-    })
+// async function search_by_text(flag :any) {
+//     const store = await db.get('entries');
+//     const search_results = store.filter((e: any) => {
+//         if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
+//     })
 
-    display(search_results);
-}
+//     display(search_results);
+// }
 
-async function search_by_tag(flag :any) {
-    const store = await db.get('entries');
-    const tagged_entries = store.filter((e: any) => e.tags.includes(flag));
-    if (tagged_entries.length) display(tagged_entries);
-    else console.log(`Couldn't find the tag "${flag}" anywhere.`);
-}
+// async function search_by_tag(flag :any) {
+//     const store = await db.get('entries');
+//     const tagged_entries = store.filter((e: any) => e.tags.includes(flag));
+//     if (tagged_entries.length) display(tagged_entries);
+//     else console.log(`Couldn't find the tag "${flag}" anywhere.`);
+// }
 
 // Write
 async function write_entry(flag :any) {
