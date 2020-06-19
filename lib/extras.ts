@@ -1,5 +1,5 @@
+import db from './database.ts';
 import h_help from './help.ts';
-import db from '../database.ts';
 
 async function reset() { await db.clear() }
 

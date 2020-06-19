@@ -1,24 +1,16 @@
-import { moment } from "https://deno.land/x/moment/moment.ts";
+import db from './database.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
-import db from '../database.ts';
+import { moment } from "https://deno.land/x/moment/moment.ts";
 
 import { parse } from "https://deno.land/std/flags/mod.ts";
 const flags = parse(Deno.args);
 
-// let flags :any;
-
 function init_display() {
-    // flags = flags;
-
-
     if (Object.keys(flags).length !== 1) display_entries_default();
     else console.log("Use -h or --help to get started.");
     if (flags.tags) display_all_tags();
 }
-
-// import { parse } from "https://deno.land/std/flags/mod.ts";
-// const flags = parse(Deno.args);
 
 async function display_entries_default() {
     if (flags.a || flags.all) display_all_entries();

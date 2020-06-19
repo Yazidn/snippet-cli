@@ -1,9 +1,9 @@
+import db from './database.ts';
+import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import {date_input_formats, time_input_formats} from './formats.ts';
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import db from '../database.ts';
 import search from './search.ts';
 import {display} from './display.ts';
-import { v4 } from "https://deno.land/std/uuid/mod.ts";
 
 async function write_entry(flag :any, subflags :any) {
     let tags :any[] = [];
@@ -46,9 +46,7 @@ async function write_entry(flag :any, subflags :any) {
         await db.set('tags', updated_tags_store); 
     }
 
-    // display_today_entries();
     display(await search.is_same(date));
-    // search for day where entry was added
 }
 
 async function edit_entry(flag :any, args :any) {
@@ -60,10 +58,8 @@ async function edit_entry(flag :any, args :any) {
         const updated_store =[entry, ...semi_updated_store];
         await db.set('entries', updated_store);
         
-        // display_today_entries();
         const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
         display(await search.is_same(date));
-        // search for day where entry was edited
     } else console.log('Specified ID is incorrect.');
 }
 
@@ -74,8 +70,6 @@ async function remove_entry(flag :any) {
         const updated_store = store.filter((e: any) => e.id !== flag);
         await db.set('entries', updated_store);
         
-        // display_today_entries();
-        // search for day where entry was deleted
         const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
         display(await search.is_same(date));
         

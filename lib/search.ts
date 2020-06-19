@@ -1,10 +1,6 @@
-import { moment } from "https://deno.land/x/moment/moment.ts";
+import db from './database.ts';
 import {date_input_formats} from './formats.ts';
-
-// import { Store } from 'https://cdn.depjs.com/store/mod.ts';
-// const db = new Store({ name: 'snpt', path: '../db' });
-
-import db from '../database.ts';
+import { moment } from "https://deno.land/x/moment/moment.ts";
 
 async function is_same(input: any) {
     let search_results :any[] = [];
@@ -17,7 +13,6 @@ async function is_same(input: any) {
     else if (is_month) search_results = await is_same_by(input, 'month');
     else if (is_year) search_results = await is_same_by(input, 'year');
 
-    // display(search_results);
     return search_results;
 }
 

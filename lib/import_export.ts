@@ -1,6 +1,6 @@
-import { moment } from "https://deno.land/x/moment/moment.ts";
+import db from './database.ts';
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
-import db from '../database.ts';
+import { moment } from "https://deno.land/x/moment/moment.ts";
 
 async function export_entries_md(flag :any) {
     let markdown = new Markdown();
@@ -22,7 +22,6 @@ async function export_entries_json(flag: any) {
     await Deno.writeTextFile(`snippet_cli_export_${export_time}.json`, JSON.stringify(await db.get('entries')));
 }
 
-// Import
 async function import_entries(flag :any) {
     await db.set('entries', JSON.parse(await Deno.readTextFile(flag)));
 }
