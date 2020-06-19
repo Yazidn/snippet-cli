@@ -11,6 +11,7 @@ import h_help from './lib/help.ts';
 
 import search from './lib/search.ts';
 import {display, init_display} from './lib/display.ts';
+import write from './lib/write.ts';
 
 const flags = parse(Deno.args), args = flags._;
 init_display();
@@ -33,9 +34,9 @@ if (flags.f && flags.t || flags.from && flags.to) display(await search.is_betwee
 if (flags.l || flags.last) display(await search.last(flags.l || flags.last));
 
 // Write
-if (flags.w || flags.write) write_entry(flags.w || flags.write);
-if (flags.e || flags.edit) edit_entry(flags.e || flags.edit);
-if (flags.r || flags.remove) delete_entry(flags.r || flags.remove);
+if (flags.w || flags.write) write.write_entry(flags.w || flags.write, {set: flags.set, timeset: flags.timeset});
+if (flags.e || flags.edit) write.edit_entry(flags.e || flags.edit, args);
+if (flags.r || flags.remove) write.remove_entry(flags.r || flags.remove);
 
 // Export
 if (flags.m || flags.markdown) export_entries_md(flags.m || flags.markdown);
@@ -49,7 +50,7 @@ if (flags.c || flags.clear) reset();
 if (flags.h || flags.help) help();
 
 // Global: Used by functions below.
-let search_results :any[] = [];
+// let search_results :any[] = [];
 
 // async function display_entries_default() {
 //     if (flags.a || flags.all) display_all_entries();
@@ -182,108 +183,108 @@ let search_results :any[] = [];
 // }
 
 // Write
-async function write_entry(flag :any) {
-    let tags :any[] = [];
-    let reg_ex = /(@|#)(\w+)/g;
-    let tag :any;
+// async function write_entry(flag :any) {
+//     let tags :any[] = [];
+//     let reg_ex = /(@|#)(\w+)/g;
+//     let tag :any;
 
-    do {
-        tag = reg_ex.exec(flag);
-        if (tag) tags.push(tag[2]);
-    } while (tag);
-    tags = [...new Set(tags)];
+//     do {
+//         tag = reg_ex.exec(flag);
+//         if (tag) tags.push(tag[2]);
+//     } while (tag);
+//     tags = [...new Set(tags)];
     
-    const store = await db.get('entries');
+//     const store = await db.get('entries');
 
-    const set = flags.set;
-    const timeset = flags.timeset;
+//     const set = flags.set;
+//     const timeset = flags.timeset;
   
-    const write_moment = moment();
-    const date = set
-      ? moment(set, date_input_formats).format("YYYY-MM-DD")
-      : write_moment.format("YYYY-MM-DD");
-    const time = timeset
-      ? moment(timeset, time_input_formats).format("h:mm:ss a")
-      : write_moment.format("h:mm:ss a");
+//     const write_moment = moment();
+//     const date = set
+//       ? moment(set, date_input_formats).format("YYYY-MM-DD")
+//       : write_moment.format("YYYY-MM-DD");
+//     const time = timeset
+//       ? moment(timeset, time_input_formats).format("h:mm:ss a")
+//       : write_moment.format("h:mm:ss a");
   
-    const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
-      "dddd, MMMM Do YYYY, h:mm:ss a",
-    );
+//     const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
+//       "dddd, MMMM Do YYYY, h:mm:ss a",
+//     );
 
-    const new_entry = { id: v4.generate(), text: flag, created, tags }
-    const updated_store = [new_entry, ...store];
-    await db.set('entries', updated_store);
+//     const new_entry = { id: v4.generate(), text: flag, created, tags }
+//     const updated_store = [new_entry, ...store];
+//     await db.set('entries', updated_store);
 
-    if (tags.length !== 0) {
-        const tags_store = await db.get('tags');
-        tags.forEach(t => {
-            if (tags_store.includes(t)) tags = tags.filter(_t => _t !== t);
-        })
-        const updated_tags_store = [...tags, ...tags_store];
-        await db.set('tags', updated_tags_store); 
-    }
+//     if (tags.length !== 0) {
+//         const tags_store = await db.get('tags');
+//         tags.forEach(t => {
+//             if (tags_store.includes(t)) tags = tags.filter(_t => _t !== t);
+//         })
+//         const updated_tags_store = [...tags, ...tags_store];
+//         await db.set('tags', updated_tags_store); 
+//     }
 
-    // display_today_entries();
-    display(await search.is_same(date));
-    // search for day where entry was added
-}
+//     // display_today_entries();
+//     display(await search.is_same(date));
+//     // search for day where entry was added
+// }
 
-async function edit_entry(flag :any) {
-    const store = await db.get('entries');
-    const entry = store.find((e: any) => e.id === flag);
-    if (entry) {
-        entry.text = args[0];
-        const semi_updated_store = store.filter((e: any) => e.id !== flag);
-        const updated_store =[entry, ...semi_updated_store];
-        await db.set('entries', updated_store);
+// async function edit_entry(flag :any) {
+//     const store = await db.get('entries');
+//     const entry = store.find((e: any) => e.id === flag);
+//     if (entry) {
+//         entry.text = args[0];
+//         const semi_updated_store = store.filter((e: any) => e.id !== flag);
+//         const updated_store =[entry, ...semi_updated_store];
+//         await db.set('entries', updated_store);
         
-        // display_today_entries();
-        const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
-        display(await search.is_same(date));
-        // search for day where entry was edited
-    } else console.log('Specified ID is incorrect.');
-}
+//         // display_today_entries();
+//         const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
+//         display(await search.is_same(date));
+//         // search for day where entry was edited
+//     } else console.log('Specified ID is incorrect.');
+// }
 
-async function delete_entry(flag :any) {
-    const store = await db.get('entries');
-    const entry = store.find((e: any) => e.id === flag);
-    if (entry) {
-        const updated_store = store.filter((e: any) => e.id !== flag);
-        await db.set('entries', updated_store);
+// async function delete_entry(flag :any) {
+//     const store = await db.get('entries');
+//     const entry = store.find((e: any) => e.id === flag);
+//     if (entry) {
+//         const updated_store = store.filter((e: any) => e.id !== flag);
+//         await db.set('entries', updated_store);
         
-        // display_today_entries();
-        // search for day where entry was deleted
-        const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
-        display(await search.is_same(date));
-        
-    } else console.log('Specified ID is incorrect.');
-}
+//         // display_today_entries();
+//         // search for day where entry was deleted
+//         const date = moment(entry.created, 'dddd, MMMM Do YYYY, h:mm:ss a');
+//         display(await search.is_same(date));
+
+//     } else console.log('Specified ID is incorrect.');
+// }
 
 // Export
-async function export_entries_md(flag :any) {
-    let markdown = new Markdown();
+// async function export_entries_md(flag :any) {
+//     let markdown = new Markdown();
     
-    const export_time = moment().format('MMMM_Do_YYYY_h_mm_a');
-    const entries = await db.get('entries');
-    const entries_to_export = entries.map((e :any) => `[${e.created}]: ${e.text}.`)
+//     const export_time = moment().format('MMMM_Do_YYYY_h_mm_a');
+//     const entries = await db.get('entries');
+//     const entries_to_export = entries.map((e :any) => `[${e.created}]: ${e.text}.`)
 
-    await markdown
-        .header('Entries', 1)
-        .header(export_time, 3)
-        .list(entries_to_export, ListTypes.Ordered)
-        .quote('Generated by snippet-cli.')
-        .write('./', `snippet_cli_export_${export_time}`);
-}
+//     await markdown
+//         .header('Entries', 1)
+//         .header(export_time, 3)
+//         .list(entries_to_export, ListTypes.Ordered)
+//         .quote('Generated by snippet-cli.')
+//         .write('./', `snippet_cli_export_${export_time}`);
+// }
 
-async function export_entries_json(flag: any) {
-    const export_time = moment().format('MMMM_Do_YYYY_h_mm_a');
-    await Deno.writeTextFile(`snippet_cli_export_${export_time}.json`, JSON.stringify(await db.get('entries')));
-}
+// async function export_entries_json(flag: any) {
+//     const export_time = moment().format('MMMM_Do_YYYY_h_mm_a');
+//     await Deno.writeTextFile(`snippet_cli_export_${export_time}.json`, JSON.stringify(await db.get('entries')));
+// }
 
-// Import
-async function import_entries(flag :any) {
-    await db.set('entries', JSON.parse(await Deno.readTextFile(flag)));
-}
+// // Import
+// async function import_entries(flag :any) {
+//     await db.set('entries', JSON.parse(await Deno.readTextFile(flag)));
+// }
 
 // Extras
 async function reset() { await db.clear() }
