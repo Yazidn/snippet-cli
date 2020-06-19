@@ -87,78 +87,67 @@ async function is_between_by(input: any, property: string) {
 async function last(flag: any) {
   let search_results: any[] = [];
 
-  const store = await db.get("entries");
   const reg_ex = /(\d+)(\w+)/g;
   const n_dmwy = reg_ex.exec(flag);
 
   if (flag === "day" || flag === "yesterday")
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment().subtract(1, "days"),
-          "day"
-        )
-      )
-        return e;
-    });
-  else if (n_dmwy)
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`),
-          n_dmwy[2]
-        )
-      )
-        return e;
-    });
-  else if (flag === "week")
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment().subtract(1, "weeks"),
-          "week"
-        )
-      )
-        return e;
-    });
+    search_results = await last_by(1, "days", "day");
+  else if (flag === "week") search_results = await last_by(1, "weeks", "week");
   else if (flag === "month")
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment().subtract(1, "months"),
-          "month"
-        )
-      )
-        return e;
-    });
-  else if (flag === "year")
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment().subtract(1, "years"),
-          "year"
-        )
-      )
-        return e;
-    });
+    search_results = await last_by(1, "months", "month");
+  else if (flag === "year") search_results = await last_by(1, "years", "year");
   else if (moment(flag, "dddd", true).isValid())
-    search_results = store.filter((e: any) => {
-      if (
-        moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-          moment(flag, "dddd").subtract(7, "days"),
-          "day"
-        )
-      )
-        return e;
-    });
+    search_results = await last_by_day(flag);
+  else if (n_dmwy) search_results = await last_by_dynamic(n_dmwy);
 
   return search_results;
 }
 
-async function search_by_text(flag: any) {
-  let search_results: any[] = [];
-
+async function last_by(count: number, what: string, property: string) {
   const store = await db.get("entries");
+
+  return store.filter((e: any) => {
+    if (
+      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+        moment().subtract(count, what),
+        property
+      )
+    )
+      return e;
+  });
+}
+
+async function last_by_day(flag: any) {
+  const store = await db.get("entries");
+
+  return store.filter((e: any) => {
+    if (
+      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+        moment(flag, "dddd").subtract(7, "days"),
+        "day"
+      )
+    )
+      return e;
+  });
+}
+
+async function last_by_dynamic(n_dmwy: any) {
+  const store = await db.get("entries");
+
+  return store.filter((e: any) => {
+    if (
+      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+        moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`),
+        n_dmwy[2]
+      )
+    )
+      return e;
+  });
+}
+
+async function search_by_text(flag: any) {
+  const store = await db.get("entries");
+  let search_results: any[] = [];
 
   search_results = store.filter((e: any) => {
     if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
