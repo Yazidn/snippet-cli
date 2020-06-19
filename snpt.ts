@@ -5,7 +5,6 @@ import { Store } from 'https://cdn.depjs.com/store/mod.ts';
 import { Markdown, ListTypes } from 'https://deno.land/x/deno_markdown/mod.ts';
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from 'https://deno.land/x/minitable@v1.0/mod.ts';
-
 import {date_input_formats, time_input_formats} from './formats.ts';
 import h_help from './help.ts';
 
