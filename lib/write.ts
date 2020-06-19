@@ -2,12 +2,13 @@ import db from "./database.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { date_input_formats, time_input_formats } from "./formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import search from "./search.ts";
 import { display } from "./display.ts";
+import search from "./search.ts";
+import regex from './regex.ts';
 
 async function write_entry(flag: any, subflags: any) {
   let tags: any[] = [];
-  let reg_ex = /(@|#)(\w+)/g;
+  let reg_ex = regex.tag;
   let tag: any;
 
   do {
