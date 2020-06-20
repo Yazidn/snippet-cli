@@ -91,17 +91,12 @@ async function last(flag: any) {
   const is_day_of_week = regex.day.exec(flag);
   const is_command = regex.last.exec(flag);
 
-  console.log(is_day_of_week, is_command);
-
   if (is_day_of_week) {
-    console.log('DAY OF WEEK.')
     search_results = await last_by(1, 'week', flag);
   } else if (is_command) {
-    console.log('COMMAND.')
-    search_results = await last_by(parseInt(is_command[1]), is_command[2]);
+    search_results = await last_by(parseInt(is_command[1]) || 1, is_command[2]);
   }
 
-  console.log('SEARCH RESULTS:', search_results);
   return search_results;
 }
 
@@ -112,7 +107,6 @@ async function last_by(
 ) {
   const store = await db.get("entries");
   let _moment = !flag ? moment() : moment(flag, ["dddd", "ddd"]);
-  console.log('MOMENT IS: ', _moment.format('dddd, MMMM Do YYYY, h:mm:ss a'));
 
   return store.filter((e: any) => {
     if (
@@ -120,8 +114,7 @@ async function last_by(
         _moment.subtract(number_of, `${what}s`),
         what
       )
-    )
-      return e;
+    ) return e;
   });
 }
 
