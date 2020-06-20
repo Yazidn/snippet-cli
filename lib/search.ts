@@ -4,7 +4,6 @@ import { moment } from "https://deno.land/x/moment/moment.ts";
 import regex from "./regex.ts";
 
 async function is_same(input: any) {
-  let search_results: any[] = [];
 
   const is_day = moment(
     input,
@@ -15,11 +14,10 @@ async function is_same(input: any) {
   const is_month = moment(input, ["MM-YYYY", "M", "MM"], true).isValid();
   const is_year = moment(input, ["YYYY", "YY", "Y"], true).isValid();
 
-  if (is_day) search_results = await is_same_by(input, "day");
-  else if (is_month) search_results = await is_same_by(input, "month");
-  else if (is_year) search_results = await is_same_by(input, "year");
+  if (is_day) return await is_same_by(input, "day");
+  else if (is_month) return await is_same_by(input, "month");
+  else if (is_year) return await is_same_by(input, "year");
 
-  return search_results;
 }
 
 async function is_same_by(input: any, property: string) {
@@ -38,7 +36,6 @@ async function is_same_by(input: any, property: string) {
 }
 
 async function is_between(input: any) {
-  let search_results: any[] = [];
 
   const is_day =
     moment(
@@ -60,11 +57,10 @@ async function is_between(input: any) {
     moment(input[0], ["YYYY", "YY", "Y"], true).isValid() &&
     moment(input[1], ["YYYY", "YY", "Y"], true).isValid();
 
-  if (is_day) search_results = await is_between_by(input, "day");
-  else if (is_month) search_results = await is_between_by(input, "month");
-  else if (is_year) search_results = await is_between_by(input, "year");
+  if (is_day) return await is_between_by(input, "day");
+  else if (is_month) return await is_between_by(input, "month");
+  else if (is_year) return await is_between_by(input, "year");
 
-  return search_results;
 }
 
 async function is_between_by(input: any, property: string) {
@@ -115,22 +111,16 @@ async function last_by(number_of: number, what: string, flag?: any) {
 
 async function search_by_text(flag: any) {
   const store = await db.get("entries");
-  let search_results: any[] = [];
 
-  search_results = store.filter((e: any) => {
+  return store.filter((e: any) => {
     if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
   });
-
-  return search_results;
 }
 
 async function search_by_tag(flag: any) {
-  let tagged_entries: any[] = [];
-
   const store = await db.get("entries");
-  tagged_entries = store.filter((e: any) => e.tags.includes(flag));
-  if (tagged_entries.length) return tagged_entries;
-  else console.log(`Couldn't find the tag "${flag}" anywhere.`);
+
+  return store.filter((e: any) => e.tags.includes(flag));
 }
 
 const _search = {
