@@ -82,24 +82,21 @@ async function last(flag: any) {
   const is_command = regex.last.exec(flag);
 
   return await last_by(
-    is_day_of_week ? 1 : is_command ? parseInt(is_command[1]) || 1 : 1,
-    is_day_of_week ? "week" : is_command ? is_command[2] : flag,
+    is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
+    is_day_of_week ? "days" : is_command ? is_command[2] : flag,
     is_day_of_week ? flag : false
   );
 }
 
 async function last_by(number_of: number, what: string, flag?: any) {
-  let _moment = !flag ? moment() : moment(flag, ["dddd", "ddd"]);
-  
   const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        moment(_moment).subtract(number_of, `${what}s`),
+        moment(flag || [], flag? ['dddd', 'ddd'] : null).subtract(number_of, `${what}s`),
         what
       )
     ) {
-      console.log(e);
       return e;
     }
   });
