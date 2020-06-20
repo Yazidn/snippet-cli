@@ -96,9 +96,7 @@ async function last_by(number_of: number, what: string, flag?: any) {
         moment(flag || [], flag? ['dddd', 'ddd'] : null).subtract(number_of, `${what}s`),
         what
       )
-    ) {
-      return e;
-    }
+    ) return e;
   });
 }
 
