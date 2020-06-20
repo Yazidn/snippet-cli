@@ -95,15 +95,10 @@ async function last(flag: any) {
 
   if (is_day_of_week) {
     console.log('DAY OF WEEK.')
-    search_results = await last_by(true, 7, "days", "day", flag);
+    search_results = await last_by(1, 'week', flag);
   } else if (is_command) {
     console.log('COMMAND.')
-    search_results = await last_by(
-      false,
-      parseInt(is_command[1]) || 1,
-      `${is_command[2]}s`,
-      is_command[2]
-    );
+    search_results = await last_by(parseInt(is_command[1]), is_command[2]);
   }
 
   console.log('SEARCH RESULTS:', search_results);
@@ -111,21 +106,19 @@ async function last(flag: any) {
 }
 
 async function last_by(
-  day: boolean,
-  count: number,
+  number_of: number,
   what: string,
-  property: any,
   flag?: any
 ) {
   const store = await db.get("entries");
-  let _moment = !day ? moment() : moment(flag, ["dddd", "ddd"]);
+  let _moment = !flag ? moment() : moment(flag, ["dddd", "ddd"]);
   console.log('MOMENT IS: ', _moment.format('dddd, MMMM Do YYYY, h:mm:ss a'));
 
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        _moment.subtract(count, what),
-        property
+        _moment.subtract(number_of, `${what}s`),
+        what
       )
     )
       return e;
