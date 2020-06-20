@@ -86,25 +86,17 @@ async function is_between_by(input: any, property: string) {
 }
 
 async function last(flag: any) {
-  let search_results: any[] = [];
-
   const is_day_of_week = regex.day.exec(flag);
   const is_command = regex.last.exec(flag);
 
-  if (is_day_of_week) {
-    search_results = await last_by(1, 'week', flag);
-  } else if (is_command) {
-    search_results = await last_by(parseInt(is_command[1]) || 1, is_command[2]);
-  }
-
-  return search_results;
+  return await last_by(
+    is_day_of_week ? 1 : is_command ? parseInt(is_command[1]) || 1 : 1,
+    is_day_of_week ? "week" : is_command ? is_command[2] : flag,
+    is_day_of_week ? flag : false
+  );
 }
 
-async function last_by(
-  number_of: number,
-  what: string,
-  flag?: any
-) {
+async function last_by(number_of: number, what: string, flag?: any) {
   const store = await db.get("entries");
   let _moment = !flag ? moment() : moment(flag, ["dddd", "ddd"]);
 
@@ -114,7 +106,10 @@ async function last_by(
         _moment.subtract(number_of, `${what}s`),
         what
       )
-    ) return e;
+    ){
+      console.log(e);
+      return e;
+    }
   });
 }
 
