@@ -95,7 +95,7 @@ async function last_by(number_of: number, what: string, flag?: any) {
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        _moment.subtract(number_of, `${what}s`),
+        moment(_moment).subtract(number_of, `${what}s`),
         what
       )
     ) {
