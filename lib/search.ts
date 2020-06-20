@@ -1,7 +1,7 @@
 import db from "./database.ts";
 import { date_input_formats } from "./formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import regex from './regex.ts';
+import regex from "./regex.ts";
 
 async function is_same(input: any) {
   let search_results: any[] = [];
@@ -88,43 +88,38 @@ async function is_between_by(input: any, property: string) {
 async function last(flag: any) {
   let search_results: any[] = [];
 
-  // const _day_reg_ex = regex.day;
-  const day_matches = regex.day.exec(flag);
-  // let day;
+  const is_day_of_week = regex.day.exec(flag);
+  const is_command = regex.last.exec(flag);
 
+  console.log(is_day_of_week, is_command);
 
-  let matches = regex.last.exec(flag);
-  let count;
-  let p;
-
-  if (day_matches) {
-
-    // day = day_matches[0]
-    search_results = await last_by(true, 7, 'days', 'day', day_matches[0]);
-  } else if(matches){
-
-    // let last_reg_ex = regex.last;
-
-  
-    count = parseInt(matches[1]);
-    p = matches[2];
-    search_results = await last_by(false, count || 1, p + 's', p);
-
-    // if (matches) {
-
-    // } 
-
+  if (is_day_of_week) {
+    console.log('DAY OF WEEK.')
+    search_results = await last_by(true, 7, "days", "day", flag);
+  } else if (is_command) {
+    console.log('COMMAND.')
+    search_results = await last_by(
+      false,
+      parseInt(is_command[1]) || 1,
+      `${is_command[2]}s`,
+      is_command[2]
+    );
   }
 
-
+  console.log('SEARCH RESULTS:', search_results);
   return search_results;
 }
 
-async function last_by(day :boolean, count: number, what: string, property: any, flag? :any) {
+async function last_by(
+  day: boolean,
+  count: number,
+  what: string,
+  property: any,
+  flag?: any
+) {
   const store = await db.get("entries");
-  let _moment = !day? moment(): moment(flag, ["dddd", "ddd"]);
-
-  // console.log(count || 1, property + ('(s)'), 'ago');
+  let _moment = !day ? moment() : moment(flag, ["dddd", "ddd"]);
+  console.log('MOMENT IS: ', _moment.format('dddd, MMMM Do YYYY, h:mm:ss a'));
 
   return store.filter((e: any) => {
     if (
