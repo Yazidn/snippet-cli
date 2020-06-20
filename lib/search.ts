@@ -4,7 +4,6 @@ import { moment } from "https://deno.land/x/moment/moment.ts";
 import regex from "./regex.ts";
 
 async function is_same(input: any) {
-
   const is_day = moment(
     input,
     ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
@@ -17,13 +16,12 @@ async function is_same(input: any) {
   if (is_day) return await is_same_by(input, "day");
   else if (is_month) return await is_same_by(input, "month");
   else if (is_year) return await is_same_by(input, "year");
-
 }
 
 async function is_same_by(input: any, property: string) {
-  const store = await db.get("entries");
   const input_to_moment = moment(input, date_input_formats);
-
+  
+  const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
@@ -36,7 +34,6 @@ async function is_same_by(input: any, property: string) {
 }
 
 async function is_between(input: any) {
-
   const is_day =
     moment(
       input[0],
@@ -60,14 +57,13 @@ async function is_between(input: any) {
   if (is_day) return await is_between_by(input, "day");
   else if (is_month) return await is_between_by(input, "month");
   else if (is_year) return await is_between_by(input, "year");
-
 }
 
 async function is_between_by(input: any, property: string) {
-  const store = await db.get("entries");
   const first_moment = moment(input[0], date_input_formats);
   const second_moment = moment(input[1], date_input_formats);
-
+  
+  const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isBetween(
@@ -93,16 +89,16 @@ async function last(flag: any) {
 }
 
 async function last_by(number_of: number, what: string, flag?: any) {
-  const store = await db.get("entries");
   let _moment = !flag ? moment() : moment(flag, ["dddd", "ddd"]);
-
+  
+  const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
         _moment.subtract(number_of, `${what}s`),
         what
       )
-    ){
+    ) {
       console.log(e);
       return e;
     }
@@ -111,7 +107,6 @@ async function last_by(number_of: number, what: string, flag?: any) {
 
 async function search_by_text(flag: any) {
   const store = await db.get("entries");
-
   return store.filter((e: any) => {
     if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
   });
@@ -119,7 +114,6 @@ async function search_by_text(flag: any) {
 
 async function search_by_tag(flag: any) {
   const store = await db.get("entries");
-
   return store.filter((e: any) => e.tags.includes(flag));
 }
 
