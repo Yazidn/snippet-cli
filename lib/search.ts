@@ -99,7 +99,7 @@ async function last(flag: any) {
 
   if (day_matches) {
 
-    // day = day_matches[0];
+    // day = day_matches[0]
     search_results = await last_by(true, 7, 'days', 'day', day_matches[0]);
   } else if(matches){
 
@@ -122,7 +122,7 @@ async function last(flag: any) {
 
 async function last_by(day :boolean, count: number, what: string, property: any, flag? :any) {
   const store = await db.get("entries");
-  let _moment = !day? moment(): moment(flag, "dddd");
+  let _moment = !day? moment(): moment(flag, ["dddd", "ddd"]);
 
   // console.log(count || 1, property + ('(s)'), 'ago');
 
