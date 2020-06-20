@@ -7865,18 +7865,38 @@ System.register(
   },
 );
 System.register(
+  "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
+  [],
+  function (exports_19, context_19) {
+    "use strict";
+    var _regex;
+    var __moduleName = context_19 && context_19.id;
+    return {
+      setters: [],
+      execute: function () {
+        _regex = {
+          tag: /(@|#)(\w+)/g,
+          last: /(\d*)(?<![A-Za-z])(day|week|month|year)/g,
+          day: /(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/gi,
+        };
+        exports_19("default", _regex);
+      },
+    };
+  },
+);
+System.register(
   "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
   [
     "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
     "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
     "https://deno.land/x/moment/moment",
+    "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
   ],
-  function (exports_19, context_19) {
+  function (exports_20, context_20) {
     "use strict";
-    var database_ts_1, formats_ts_1, moment_ts_1, _search;
-    var __moduleName = context_19 && context_19.id;
+    var database_ts_1, formats_ts_1, moment_ts_1, regex_ts_1, _search;
+    var __moduleName = context_20 && context_20.id;
     async function is_same(input) {
-      let search_results = [];
       const is_day = moment_ts_1.moment(
         input,
         ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
@@ -7887,20 +7907,19 @@ System.register(
       const is_year = moment_ts_1.moment(input, ["YYYY", "YY", "Y"], true)
         .isValid();
       if (is_day) {
-        search_results = await is_same_by(input, "day");
+        return await is_same_by(input, "day");
       } else if (is_month) {
-        search_results = await is_same_by(input, "month");
+        return await is_same_by(input, "month");
       } else if (is_year) {
-        search_results = await is_same_by(input, "year");
+        return await is_same_by(input, "year");
       }
-      return search_results;
     }
     async function is_same_by(input, property) {
-      const store = await database_ts_1.default.get("entries");
       const input_to_moment = moment_ts_1.moment(
         input,
         formats_ts_1.date_input_formats,
       );
+      const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
           moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
@@ -7913,7 +7932,6 @@ System.register(
       });
     }
     async function is_between(input) {
-      let search_results = [];
       const is_day =
         moment_ts_1.moment(
           input[0],
@@ -7932,16 +7950,14 @@ System.register(
         moment_ts_1.moment(input[0], ["YYYY", "YY", "Y"], true).isValid() &&
         moment_ts_1.moment(input[1], ["YYYY", "YY", "Y"], true).isValid();
       if (is_day) {
-        search_results = await is_between_by(input, "day");
+        return await is_between_by(input, "day");
       } else if (is_month) {
-        search_results = await is_between_by(input, "month");
+        return await is_between_by(input, "month");
       } else if (is_year) {
-        search_results = await is_between_by(input, "year");
+        return await is_between_by(input, "year");
       }
-      return search_results;
     }
     async function is_between_by(input, property) {
-      const store = await database_ts_1.default.get("entries");
       const first_moment = moment_ts_1.moment(
         input[0],
         formats_ts_1.date_input_formats,
@@ -7950,6 +7966,7 @@ System.register(
         input[1],
         formats_ts_1.date_input_formats,
       );
+      const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
           moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
@@ -7960,94 +7977,39 @@ System.register(
       });
     }
     async function last(flag) {
-      let search_results = [];
+      const is_day_of_week = regex_ts_1.default.day.exec(flag);
+      const is_command = regex_ts_1.default.last.exec(flag);
+      return await last_by(
+        is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
+        is_day_of_week ? "days" : is_command ? is_command[2] : flag,
+        is_day_of_week ? flag : false,
+      );
+    }
+    async function last_by(number_of, what, flag) {
       const store = await database_ts_1.default.get("entries");
-      const reg_ex = /(\d+)(\w+)/g;
-      const n_dmwy = reg_ex.exec(flag);
-      if (flag === "day" || flag === "yesterday") {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(moment_ts_1.moment().subtract(1, "days"), "day")
-          ) {
-            return e;
-          }
-        });
-      } else if (n_dmwy) {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(
-                moment_ts_1.moment().subtract(n_dmwy[1], `${n_dmwy[2]}s`),
-                n_dmwy[2],
-              )
-          ) {
-            return e;
-          }
-        });
-      } else if (flag === "week") {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(moment_ts_1.moment().subtract(1, "weeks"), "week")
-          ) {
-            return e;
-          }
-        });
-      } else if (flag === "month") {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(moment_ts_1.moment().subtract(1, "months"), "month")
-          ) {
-            return e;
-          }
-        });
-      } else if (flag === "year") {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(moment_ts_1.moment().subtract(1, "years"), "year")
-          ) {
-            return e;
-          }
-        });
-      } else if (moment_ts_1.moment(flag, "dddd", true).isValid()) {
-        search_results = store.filter((e) => {
-          if (
-            moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-              .isSame(
-                moment_ts_1.moment(flag, "dddd").subtract(7, "days"),
-                "day",
-              )
-          ) {
-            return e;
-          }
-        });
-      }
-      return search_results;
+      return store.filter((e) => {
+        if (
+          moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+            moment_ts_1.moment(flag || [], flag ? ["dddd", "ddd"] : null)
+              .subtract(number_of, `${what}s`),
+            what,
+          )
+        ) {
+          return e;
+        }
+      });
     }
     async function search_by_text(flag) {
-      let search_results = [];
       const store = await database_ts_1.default.get("entries");
-      search_results = store.filter((e) => {
+      return store.filter((e) => {
         if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) {
           return e;
         }
       });
-      return search_results;
     }
     async function search_by_tag(flag) {
-      let tagged_entries = [];
       const store = await database_ts_1.default.get("entries");
-      tagged_entries = store.filter((e) =>
-        e.tags.includes(flag)
-      );
-      if (tagged_entries.length) {
-        return tagged_entries;
-      } else {
-        console.log(`Couldn't find the tag "${flag}" anywhere.`);
-      }
+      return store.filter((e) => e.tags.includes(flag));
     }
     return {
       setters: [
@@ -8060,6 +8022,9 @@ System.register(
         function (moment_ts_1_1) {
           moment_ts_1 = moment_ts_1_1;
         },
+        function (regex_ts_1_1) {
+          regex_ts_1 = regex_ts_1_1;
+        },
       ],
       execute: function () {
         _search = {
@@ -8069,7 +8034,7 @@ System.register(
           search_by_tag,
           search_by_text,
         };
-        exports_19("default", _search);
+        exports_20("default", _search);
       },
     };
   },
@@ -8077,9 +8042,9 @@ System.register(
 System.register(
   "https://deno.land/std/uuid/_common",
   [],
-  function (exports_20, context_20) {
+  function (exports_21, context_21) {
     "use strict";
-    var __moduleName = context_20 && context_20.id;
+    var __moduleName = context_21 && context_21.id;
     // Copyright 2018-2020 the Deno authors. All rights reserved. MIT license.
     function bytesToUuid(bytes) {
       const bits = [...bytes].map((bit) => {
@@ -8098,7 +8063,7 @@ System.register(
         ...bits.slice(10, 16),
       ].join("");
     }
-    exports_20("bytesToUuid", bytesToUuid);
+    exports_21("bytesToUuid", bytesToUuid);
     function uuidToBytes(uuid) {
       const bytes = [];
       uuid.replace(/[a-fA-F0-9]{2}/g, (hex) => {
@@ -8107,7 +8072,7 @@ System.register(
       });
       return bytes;
     }
-    exports_20("uuidToBytes", uuidToBytes);
+    exports_21("uuidToBytes", uuidToBytes);
     function stringToBytes(str) {
       str = unescape(encodeURIComponent(str));
       const bytes = new Array(str.length);
@@ -8116,7 +8081,7 @@ System.register(
       }
       return bytes;
     }
-    exports_20("stringToBytes", stringToBytes);
+    exports_21("stringToBytes", stringToBytes);
     function createBuffer(content) {
       const arrayBuffer = new ArrayBuffer(content.length);
       const uint8Array = new Uint8Array(arrayBuffer);
@@ -8125,7 +8090,7 @@ System.register(
       }
       return arrayBuffer;
     }
-    exports_20("createBuffer", createBuffer);
+    exports_21("createBuffer", createBuffer);
     return {
       setters: [],
       execute: function () {
@@ -8137,14 +8102,14 @@ System.register(
 System.register(
   "https://deno.land/std/uuid/v1",
   ["https://deno.land/std/uuid/_common"],
-  function (exports_21, context_21) {
+  function (exports_22, context_22) {
     "use strict";
     var _common_ts_1, UUID_RE, _nodeId, _clockseq, _lastMSecs, _lastNSecs;
-    var __moduleName = context_21 && context_21.id;
+    var __moduleName = context_22 && context_22.id;
     function validate(id) {
       return UUID_RE.test(id);
     }
-    exports_21("validate", validate);
+    exports_22("validate", validate);
     function generate(options, buf, offset) {
       let i = (buf && offset) || 0;
       const b = buf || [];
@@ -8206,7 +8171,7 @@ System.register(
       }
       return buf ? buf : _common_ts_1.bytesToUuid(b);
     }
-    exports_21("generate", generate);
+    exports_22("generate", generate);
     return {
       setters: [
         function (_common_ts_1_1) {
@@ -8228,21 +8193,21 @@ System.register(
 System.register(
   "https://deno.land/std/uuid/v4",
   ["https://deno.land/std/uuid/_common"],
-  function (exports_22, context_22) {
+  function (exports_23, context_23) {
     "use strict";
     var _common_ts_2, UUID_RE;
-    var __moduleName = context_22 && context_22.id;
+    var __moduleName = context_23 && context_23.id;
     function validate(id) {
       return UUID_RE.test(id);
     }
-    exports_22("validate", validate);
+    exports_23("validate", validate);
     function generate() {
       const rnds = crypto.getRandomValues(new Uint8Array(16));
       rnds[6] = (rnds[6] & 0x0f) | 0x40; // Version 4
       rnds[8] = (rnds[8] & 0x3f) | 0x80; // Variant 10
       return _common_ts_2.bytesToUuid(rnds);
     }
-    exports_22("generate", generate);
+    exports_23("generate", generate);
     return {
       setters: [
         function (_common_ts_2_1) {
@@ -8269,10 +8234,10 @@ System.register(
 System.register(
   "https://deno.land/std/hash/sha1",
   [],
-  function (exports_23, context_23) {
+  function (exports_24, context_24) {
     "use strict";
     var HEX_CHARS, EXTRA, SHIFT, blocks, Sha1;
-    var __moduleName = context_23 && context_23.id;
+    var __moduleName = context_24 && context_24.id;
     return {
       setters: [],
       execute: function () {
@@ -8635,7 +8600,7 @@ System.register(
             return buffer;
           }
         };
-        exports_23("Sha1", Sha1);
+        exports_24("Sha1", Sha1);
       },
     };
   },
@@ -8665,12 +8630,12 @@ System.register(
 System.register(
   "https://deno.land/std/node/_util/_util_promisify",
   [],
-  function (exports_24, context_24) {
+  function (exports_25, context_25) {
     "use strict";
     var kCustomPromisifiedSymbol,
       kCustomPromisifyArgsSymbol,
       NodeInvalidArgTypeError;
-    var __moduleName = context_24 && context_24.id;
+    var __moduleName = context_25 && context_25.id;
     function promisify(original) {
       if (typeof original !== "function") {
         throw new NodeInvalidArgTypeError("original", "Function", original);
@@ -8729,7 +8694,7 @@ System.register(
         Object.getOwnPropertyDescriptors(original),
       );
     }
-    exports_24("promisify", promisify);
+    exports_25("promisify", promisify);
     return {
       setters: [],
       execute: function () {
@@ -8780,10 +8745,10 @@ System.register(
 System.register(
   "https://deno.land/std/node/_util/_util_callbackify",
   [],
-  function (exports_25, context_25) {
+  function (exports_26, context_26) {
     "use strict";
     var NodeFalsyValueRejectionError, NodeInvalidArgTypeError;
-    var __moduleName = context_25 && context_25.id;
+    var __moduleName = context_26 && context_26.id;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function callbackify(original) {
       if (typeof original !== "function") {
@@ -8816,7 +8781,7 @@ System.register(
       Object.defineProperties(callbackified, descriptors);
       return callbackified;
     }
-    exports_25("callbackify", callbackify);
+    exports_26("callbackify", callbackify);
     return {
       setters: [],
       execute: function () {
@@ -8865,50 +8830,50 @@ System.register(
 System.register(
   "https://deno.land/std/node/_util/_util_types",
   [],
-  function (exports_26, context_26) {
+  function (exports_27, context_27) {
     "use strict";
     var _toString, _isObjectLike, _isFunctionLike;
-    var __moduleName = context_26 && context_26.id;
+    var __moduleName = context_27 && context_27.id;
     function isAnyArrayBuffer(value) {
       return (_isObjectLike(value) &&
         (_toString.call(value) === "[object ArrayBuffer]" ||
           _toString.call(value) === "[object SharedArrayBuffer]"));
     }
-    exports_26("isAnyArrayBuffer", isAnyArrayBuffer);
+    exports_27("isAnyArrayBuffer", isAnyArrayBuffer);
     function isArrayBufferView(value) {
       return ArrayBuffer.isView(value);
     }
-    exports_26("isArrayBufferView", isArrayBufferView);
+    exports_27("isArrayBufferView", isArrayBufferView);
     function isArgumentsObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Arguments]";
     }
-    exports_26("isArgumentsObject", isArgumentsObject);
+    exports_27("isArgumentsObject", isArgumentsObject);
     function isArrayBuffer(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object ArrayBuffer]");
     }
-    exports_26("isArrayBuffer", isArrayBuffer);
+    exports_27("isArrayBuffer", isArrayBuffer);
     function isAsyncFunction(value) {
       return (_isFunctionLike(value) &&
         _toString.call(value) === "[object AsyncFunction]");
     }
-    exports_26("isAsyncFunction", isAsyncFunction);
+    exports_27("isAsyncFunction", isAsyncFunction);
     function isBigInt64Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object BigInt64Array]");
     }
-    exports_26("isBigInt64Array", isBigInt64Array);
+    exports_27("isBigInt64Array", isBigInt64Array);
     function isBigUint64Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object BigUint64Array]");
     }
-    exports_26("isBigUint64Array", isBigUint64Array);
+    exports_27("isBigUint64Array", isBigUint64Array);
     function isBooleanObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Boolean]";
     }
-    exports_26("isBooleanObject", isBooleanObject);
+    exports_27("isBooleanObject", isBooleanObject);
     function isBoxedPrimitive(value) {
       return (isBooleanObject(value) ||
         isStringObject(value) ||
@@ -8916,114 +8881,114 @@ System.register(
         isSymbolObject(value) ||
         isBigIntObject(value));
     }
-    exports_26("isBoxedPrimitive", isBoxedPrimitive);
+    exports_27("isBoxedPrimitive", isBoxedPrimitive);
     function isDataView(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object DataView]";
     }
-    exports_26("isDataView", isDataView);
+    exports_27("isDataView", isDataView);
     function isDate(value) {
       return _isObjectLike(value) && _toString.call(value) === "[object Date]";
     }
-    exports_26("isDate", isDate);
+    exports_27("isDate", isDate);
     // isExternal: Not implemented
     function isFloat32Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Float32Array]");
     }
-    exports_26("isFloat32Array", isFloat32Array);
+    exports_27("isFloat32Array", isFloat32Array);
     function isFloat64Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Float64Array]");
     }
-    exports_26("isFloat64Array", isFloat64Array);
+    exports_27("isFloat64Array", isFloat64Array);
     function isGeneratorFunction(value) {
       return (_isFunctionLike(value) &&
         _toString.call(value) === "[object GeneratorFunction]");
     }
-    exports_26("isGeneratorFunction", isGeneratorFunction);
+    exports_27("isGeneratorFunction", isGeneratorFunction);
     function isGeneratorObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Generator]";
     }
-    exports_26("isGeneratorObject", isGeneratorObject);
+    exports_27("isGeneratorObject", isGeneratorObject);
     function isInt8Array(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Int8Array]";
     }
-    exports_26("isInt8Array", isInt8Array);
+    exports_27("isInt8Array", isInt8Array);
     function isInt16Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Int16Array]");
     }
-    exports_26("isInt16Array", isInt16Array);
+    exports_27("isInt16Array", isInt16Array);
     function isInt32Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Int32Array]");
     }
-    exports_26("isInt32Array", isInt32Array);
+    exports_27("isInt32Array", isInt32Array);
     function isMap(value) {
       return _isObjectLike(value) && _toString.call(value) === "[object Map]";
     }
-    exports_26("isMap", isMap);
+    exports_27("isMap", isMap);
     function isMapIterator(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Map Iterator]");
     }
-    exports_26("isMapIterator", isMapIterator);
+    exports_27("isMapIterator", isMapIterator);
     function isModuleNamespaceObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Module]";
     }
-    exports_26("isModuleNamespaceObject", isModuleNamespaceObject);
+    exports_27("isModuleNamespaceObject", isModuleNamespaceObject);
     function isNativeError(value) {
       return _isObjectLike(value) && _toString.call(value) === "[object Error]";
     }
-    exports_26("isNativeError", isNativeError);
+    exports_27("isNativeError", isNativeError);
     function isNumberObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Number]";
     }
-    exports_26("isNumberObject", isNumberObject);
+    exports_27("isNumberObject", isNumberObject);
     function isBigIntObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object BigInt]";
     }
-    exports_26("isBigIntObject", isBigIntObject);
+    exports_27("isBigIntObject", isBigIntObject);
     function isPromise(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Promise]";
     }
-    exports_26("isPromise", isPromise);
+    exports_27("isPromise", isPromise);
     function isRegExp(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object RegExp]";
     }
-    exports_26("isRegExp", isRegExp);
+    exports_27("isRegExp", isRegExp);
     function isSet(value) {
       return _isObjectLike(value) && _toString.call(value) === "[object Set]";
     }
-    exports_26("isSet", isSet);
+    exports_27("isSet", isSet);
     function isSetIterator(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Set Iterator]");
     }
-    exports_26("isSetIterator", isSetIterator);
+    exports_27("isSetIterator", isSetIterator);
     function isSharedArrayBuffer(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object SharedArrayBuffer]");
     }
-    exports_26("isSharedArrayBuffer", isSharedArrayBuffer);
+    exports_27("isSharedArrayBuffer", isSharedArrayBuffer);
     function isStringObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object String]";
     }
-    exports_26("isStringObject", isStringObject);
+    exports_27("isStringObject", isStringObject);
     function isSymbolObject(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object Symbol]";
     }
-    exports_26("isSymbolObject", isSymbolObject);
+    exports_27("isSymbolObject", isSymbolObject);
     // Adapted from Lodash
     function isTypedArray(value) {
       /** Used to match `toStringTag` values of typed arrays. */
@@ -9031,37 +8996,37 @@ System.register(
         /^\[object (?:Float(?:32|64)|(?:Int|Uint)(?:8|16|32)|Uint8Clamped)Array\]$/;
       return _isObjectLike(value) && reTypedTag.test(_toString.call(value));
     }
-    exports_26("isTypedArray", isTypedArray);
+    exports_27("isTypedArray", isTypedArray);
     function isUint8Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Uint8Array]");
     }
-    exports_26("isUint8Array", isUint8Array);
+    exports_27("isUint8Array", isUint8Array);
     function isUint8ClampedArray(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Uint8ClampedArray]");
     }
-    exports_26("isUint8ClampedArray", isUint8ClampedArray);
+    exports_27("isUint8ClampedArray", isUint8ClampedArray);
     function isUint16Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Uint16Array]");
     }
-    exports_26("isUint16Array", isUint16Array);
+    exports_27("isUint16Array", isUint16Array);
     function isUint32Array(value) {
       return (_isObjectLike(value) &&
         _toString.call(value) === "[object Uint32Array]");
     }
-    exports_26("isUint32Array", isUint32Array);
+    exports_27("isUint32Array", isUint32Array);
     function isWeakMap(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object WeakMap]";
     }
-    exports_26("isWeakMap", isWeakMap);
+    exports_27("isWeakMap", isWeakMap);
     function isWeakSet(value) {
       return _isObjectLike(value) &&
         _toString.call(value) === "[object WeakSet]";
     }
-    exports_26("isWeakSet", isWeakSet);
+    exports_27("isWeakSet", isWeakSet);
     return {
       setters: [],
       execute: function () {
@@ -9076,15 +9041,15 @@ System.register(
 System.register(
   "https://deno.land/std/node/_utils",
   [],
-  function (exports_27, context_27) {
+  function (exports_28, context_28) {
     "use strict";
     var _TextDecoder, _TextEncoder;
-    var __moduleName = context_27 && context_27.id;
+    var __moduleName = context_28 && context_28.id;
     function notImplemented(msg) {
       const message = msg ? `Not implemented: ${msg}` : "Not implemented";
       throw new Error(message);
     }
-    exports_27("notImplemented", notImplemented);
+    exports_28("notImplemented", notImplemented);
     function intoCallbackAPI(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       func,
@@ -9096,7 +9061,7 @@ System.register(
         .then((value) => cb && cb(null, value))
         .catch((err) => cb && cb(err, null));
     }
-    exports_27("intoCallbackAPI", intoCallbackAPI);
+    exports_28("intoCallbackAPI", intoCallbackAPI);
     function intoCallbackAPIWithIntercept(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       func,
@@ -9109,19 +9074,19 @@ System.register(
         .then((value) => cb && cb(null, interceptor(value)))
         .catch((err) => cb && cb(err, null));
     }
-    exports_27("intoCallbackAPIWithIntercept", intoCallbackAPIWithIntercept);
+    exports_28("intoCallbackAPIWithIntercept", intoCallbackAPIWithIntercept);
     function spliceOne(list, index) {
       for (; index + 1 < list.length; index++) {
         list[index] = list[index + 1];
       }
       list.pop();
     }
-    exports_27("spliceOne", spliceOne);
+    exports_28("spliceOne", spliceOne);
     return {
       setters: [],
       execute: function () {
-        exports_27("_TextDecoder", _TextDecoder = TextDecoder);
-        exports_27("_TextEncoder", _TextEncoder = TextEncoder);
+        exports_28("_TextDecoder", _TextDecoder = TextDecoder);
+        exports_28("_TextEncoder", _TextEncoder = TextEncoder);
       },
     };
   },
@@ -9134,63 +9099,63 @@ System.register(
     "https://deno.land/std/node/_util/_util_types",
     "https://deno.land/std/node/_utils",
   ],
-  function (exports_28, context_28) {
+  function (exports_29, context_29) {
     "use strict";
     var types, _utils_ts_1, TextDecoder, TextEncoder;
-    var __moduleName = context_28 && context_28.id;
+    var __moduleName = context_29 && context_29.id;
     function isArray(value) {
       return Array.isArray(value);
     }
-    exports_28("isArray", isArray);
+    exports_29("isArray", isArray);
     function isBoolean(value) {
       return typeof value === "boolean" || value instanceof Boolean;
     }
-    exports_28("isBoolean", isBoolean);
+    exports_29("isBoolean", isBoolean);
     function isNull(value) {
       return value === null;
     }
-    exports_28("isNull", isNull);
+    exports_29("isNull", isNull);
     function isNullOrUndefined(value) {
       return value === null || value === undefined;
     }
-    exports_28("isNullOrUndefined", isNullOrUndefined);
+    exports_29("isNullOrUndefined", isNullOrUndefined);
     function isNumber(value) {
       return typeof value === "number" || value instanceof Number;
     }
-    exports_28("isNumber", isNumber);
+    exports_29("isNumber", isNumber);
     function isString(value) {
       return typeof value === "string" || value instanceof String;
     }
-    exports_28("isString", isString);
+    exports_29("isString", isString);
     function isSymbol(value) {
       return typeof value === "symbol";
     }
-    exports_28("isSymbol", isSymbol);
+    exports_29("isSymbol", isSymbol);
     function isUndefined(value) {
       return value === undefined;
     }
-    exports_28("isUndefined", isUndefined);
+    exports_29("isUndefined", isUndefined);
     function isObject(value) {
       return value !== null && typeof value === "object";
     }
-    exports_28("isObject", isObject);
+    exports_29("isObject", isObject);
     function isError(e) {
       return e instanceof Error;
     }
-    exports_28("isError", isError);
+    exports_29("isError", isError);
     function isFunction(value) {
       return typeof value === "function";
     }
-    exports_28("isFunction", isFunction);
+    exports_29("isFunction", isFunction);
     function isRegExp(value) {
       return value instanceof RegExp;
     }
-    exports_28("isRegExp", isRegExp);
+    exports_29("isRegExp", isRegExp);
     function isPrimitive(value) {
       return (value === null ||
         (typeof value !== "object" && typeof value !== "function"));
     }
-    exports_28("isPrimitive", isPrimitive);
+    exports_29("isPrimitive", isPrimitive);
     function validateIntegerRange(
       value,
       name,
@@ -9207,16 +9172,16 @@ System.register(
         );
       }
     }
-    exports_28("validateIntegerRange", validateIntegerRange);
+    exports_29("validateIntegerRange", validateIntegerRange);
     return {
       setters: [
         function (_util_promisify_ts_1_1) {
-          exports_28({
+          exports_29({
             "promisify": _util_promisify_ts_1_1["promisify"],
           });
         },
         function (_util_callbackify_ts_1_1) {
-          exports_28({
+          exports_29({
             "callbackify": _util_callbackify_ts_1_1["callbackify"],
           });
         },
@@ -9228,9 +9193,9 @@ System.register(
         },
       ],
       execute: function () {
-        exports_28("types", types);
-        exports_28("TextDecoder", TextDecoder = _utils_ts_1._TextDecoder);
-        exports_28("TextEncoder", TextEncoder = _utils_ts_1._TextEncoder);
+        exports_29("types", types);
+        exports_29("TextDecoder", TextDecoder = _utils_ts_1._TextDecoder);
+        exports_29("TextEncoder", TextEncoder = _utils_ts_1._TextEncoder);
       },
     };
   },
@@ -9239,17 +9204,17 @@ System.register(
 System.register(
   "https://deno.land/std/_util/assert",
   [],
-  function (exports_29, context_29) {
+  function (exports_30, context_30) {
     "use strict";
     var DenoStdInternalError;
-    var __moduleName = context_29 && context_29.id;
+    var __moduleName = context_30 && context_30.id;
     /** Make an assertion, if not `true`, then throw. */
     function assert(expr, msg = "") {
       if (!expr) {
         throw new DenoStdInternalError(msg);
       }
     }
-    exports_29("assert", assert);
+    exports_30("assert", assert);
     return {
       setters: [],
       execute: function () {
@@ -9259,7 +9224,7 @@ System.register(
             this.name = "DenoStdInternalError";
           }
         };
-        exports_29("DenoStdInternalError", DenoStdInternalError);
+        exports_30("DenoStdInternalError", DenoStdInternalError);
       },
     };
   },
@@ -9273,14 +9238,14 @@ System.register(
     "https://deno.land/std/node/util",
     "https://deno.land/std/_util/assert",
   ],
-  function (exports_30, context_30) {
+  function (exports_31, context_31) {
     "use strict";
     var _common_ts_3, sha1_ts_1, util_ts_1, assert_ts_1, UUID_RE;
-    var __moduleName = context_30 && context_30.id;
+    var __moduleName = context_31 && context_31.id;
     function validate(id) {
       return UUID_RE.test(id);
     }
-    exports_30("validate", validate);
+    exports_31("validate", validate);
     function generate(options, buf, offset) {
       const i = (buf && offset) || 0;
       let { value, namespace } = options;
@@ -9307,7 +9272,7 @@ System.register(
       }
       return buf || _common_ts_3.bytesToUuid(bytes);
     }
-    exports_30("generate", generate);
+    exports_31("generate", generate);
     return {
       setters: [
         function (_common_ts_3_1) {
@@ -9337,14 +9302,14 @@ System.register(
     "https://deno.land/std/uuid/v4",
     "https://deno.land/std/uuid/v5",
   ],
-  function (exports_31, context_31) {
+  function (exports_32, context_32) {
     "use strict";
     var v1, v4, v5, NIL_UUID, NOT_IMPLEMENTED, v3;
-    var __moduleName = context_31 && context_31.id;
+    var __moduleName = context_32 && context_32.id;
     function isNil(val) {
       return val === NIL_UUID;
     }
-    exports_31("isNil", isNil);
+    exports_32("isNil", isNil);
     return {
       setters: [
         function (v1_1) {
@@ -9358,10 +9323,10 @@ System.register(
         },
       ],
       execute: function () {
-        exports_31("v1", v1);
-        exports_31("v4", v4);
-        exports_31("v5", v5);
-        exports_31(
+        exports_32("v1", v1);
+        exports_32("v4", v4);
+        exports_32("v5", v5);
+        exports_32(
           "NIL_UUID",
           NIL_UUID = "00000000-0000-0000-0000-000000000000",
         );
@@ -9374,7 +9339,7 @@ System.register(
           },
         };
         // TODO Implement
-        exports_31("v3", v3 = NOT_IMPLEMENTED);
+        exports_32("v3", v3 = NOT_IMPLEMENTED);
       },
     };
   },
@@ -9382,10 +9347,10 @@ System.register(
 System.register(
   "https://deno.land/x/json_tree/mod",
   [],
-  function (exports_32, context_32) {
+  function (exports_33, context_33) {
     "use strict";
     var jsonTree;
-    var __moduleName = context_32 && context_32.id;
+    var __moduleName = context_33 && context_33.id;
     function makePrefix(key, last) {
       let str = (last ? "└" : "├");
       if (key) {
@@ -9471,7 +9436,7 @@ System.register(
           );
           return tree;
         };
-        exports_32("jsonTree", jsonTree);
+        exports_33("jsonTree", jsonTree);
       },
     };
   },
@@ -9479,9 +9444,9 @@ System.register(
 System.register(
   "https://deno.land/x/minitable@v1.0/mod",
   [],
-  function (exports_33, context_33) {
+  function (exports_34, context_34) {
     "use strict";
-    var __moduleName = context_33 && context_33.id;
+    var __moduleName = context_34 && context_34.id;
     /**
      * Build a flexible table from a list of objects
      * @param data Data to print
@@ -9503,7 +9468,7 @@ System.register(
       const rows = makeRows(cols, pad);
       return rows.map((x) => x.trimEnd()).join("\n");
     }
-    exports_33("table", table);
+    exports_34("table", table);
     /*
       HELPERS
     */
@@ -9561,10 +9526,10 @@ System.register(
 System.register(
   "https://deno.land/std/flags/mod",
   ["https://deno.land/std/_util/assert"],
-  function (exports_34, context_34) {
+  function (exports_35, context_35) {
     "use strict";
     var assert_ts_2;
-    var __moduleName = context_34 && context_34.id;
+    var __moduleName = context_35 && context_35.id;
     function get(obj, key) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         return obj[key];
@@ -9832,7 +9797,7 @@ System.register(
       }
       return argv;
     }
-    exports_34("parse", parse);
+    exports_35("parse", parse);
     return {
       setters: [
         function (assert_ts_2_1) {
@@ -9853,10 +9818,10 @@ System.register(
     "https://deno.land/x/moment/moment",
     "https://deno.land/std/flags/mod",
   ],
-  function (exports_35, context_35) {
+  function (exports_36, context_36) {
     "use strict";
     var database_ts_2, mod_ts_4, mod_ts_5, moment_ts_2, mod_ts_6, flags;
-    var __moduleName = context_35 && context_35.id;
+    var __moduleName = context_36 && context_36.id;
     function init_display() {
       if (Object.keys(flags).length !== 1) {
         display_entries_default();
@@ -9867,7 +9832,7 @@ System.register(
         display_all_tags();
       }
     }
-    exports_35("init_display", init_display);
+    exports_36("init_display", init_display);
     async function display_entries_default() {
       if (flags.a || flags.all) {
         display_all_entries();
@@ -9890,7 +9855,7 @@ System.register(
       });
       display(search_results);
     }
-    exports_35("display_today_entries", display_today_entries);
+    exports_36("display_today_entries", display_today_entries);
     async function display_all_entries() {
       const entries = await database_ts_2.default.get("entries");
       if (await database_ts_2.default.has("entries")) {
@@ -9928,7 +9893,7 @@ System.register(
         }
       }
     }
-    exports_35("display", display);
+    exports_36("display", display);
     return {
       setters: [
         function (database_ts_2_1) {
@@ -9960,22 +9925,24 @@ System.register(
     "https://deno.land/std/uuid/mod",
     "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
     "https://deno.land/x/moment/moment",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
     "file:///home/yazid/Documents/projects/snippet-cli/lib/display",
+    "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
+    "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
   ],
-  function (exports_36, context_36) {
+  function (exports_37, context_37) {
     "use strict";
     var database_ts_3,
       mod_ts_7,
       formats_ts_2,
       moment_ts_3,
-      search_ts_1,
       display_ts_1,
+      search_ts_1,
+      regex_ts_2,
       _write;
-    var __moduleName = context_36 && context_36.id;
+    var __moduleName = context_37 && context_37.id;
     async function write_entry(flag, subflags) {
       let tags = [];
-      let reg_ex = /(@|#)(\w+)/g;
+      let reg_ex = regex_ts_2.default.tag;
       let tag;
       do {
         tag = reg_ex.exec(flag);
@@ -10068,11 +10035,14 @@ System.register(
         function (moment_ts_3_1) {
           moment_ts_3 = moment_ts_3_1;
         },
+        function (display_ts_1_1) {
+          display_ts_1 = display_ts_1_1;
+        },
         function (search_ts_1_1) {
           search_ts_1 = search_ts_1_1;
         },
-        function (display_ts_1_1) {
-          display_ts_1 = display_ts_1_1;
+        function (regex_ts_2_1) {
+          regex_ts_2 = regex_ts_2_1;
         },
       ],
       execute: function () {
@@ -10081,7 +10051,7 @@ System.register(
           edit_entry,
           remove_entry,
         };
-        exports_36("default", _write);
+        exports_37("default", _write);
       },
     };
   },
@@ -10089,10 +10059,10 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/enums/list_types",
   [],
-  function (exports_37, context_37) {
+  function (exports_38, context_38) {
     "use strict";
     var ListTypes;
-    var __moduleName = context_37 && context_37.id;
+    var __moduleName = context_38 && context_38.id;
     return {
       setters: [],
       execute: function () {
@@ -10100,7 +10070,7 @@ System.register(
           ListTypes[ListTypes["Ordered"] = 1] = "Ordered";
           ListTypes[ListTypes["UnOrdered"] = 2] = "UnOrdered";
         })(ListTypes || (ListTypes = {}));
-        exports_37("ListTypes", ListTypes);
+        exports_38("ListTypes", ListTypes);
       },
     };
   },
@@ -10109,7 +10079,7 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/table",
   [],
-  function (exports_38, context_38) {
+  function (exports_39, context_39) {
     "use strict";
     var trailingWhitespace,
       space,
@@ -10124,7 +10094,7 @@ System.register(
       c,
       l,
       r;
-    var __moduleName = context_38 && context_38.id;
+    var __moduleName = context_39 && context_39.id;
     // Create a table from a matrix of strings.
     function markdownTable(table, options) {
       var settings = options || {};
@@ -10294,7 +10264,7 @@ System.register(
       }
       return lines.join(lineFeed);
     }
-    exports_38("default", markdownTable);
+    exports_39("default", markdownTable);
     function serialize(value) {
       return value === null || value === undefined ? "" : String(value);
     }
@@ -10353,10 +10323,10 @@ System.register(
     "https://deno.land/x/deno_markdown/src/enums/list_types",
     "https://deno.land/x/deno_markdown/src/table",
   ],
-  function (exports_39, context_39) {
+  function (exports_40, context_40) {
     "use strict";
     var list_types_ts_1, table_ts_1, Markdown;
-    var __moduleName = context_39 && context_39.id;
+    var __moduleName = context_40 && context_40.id;
     return {
       setters: [
         function (list_types_ts_1_1) {
@@ -10495,7 +10465,7 @@ System.register(
             Deno.close(file.rid);
           }
         };
-        exports_39("Markdown", Markdown);
+        exports_40("Markdown", Markdown);
       },
     };
   },
@@ -10503,9 +10473,9 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/extensions",
   [],
-  function (exports_40, context_40) {
+  function (exports_41, context_41) {
     "use strict";
-    var __moduleName = context_40 && context_40.id;
+    var __moduleName = context_41 && context_41.id;
     /**
     * Creates a block of inline code
     * @param code
@@ -10513,7 +10483,7 @@ System.register(
     function inlineCode(code) {
       return `\`${code}\``;
     }
-    exports_40("inlineCode", inlineCode);
+    exports_41("inlineCode", inlineCode);
     /**
     * Creates a string with italics
     * @param text The text you wish to be made italic
@@ -10527,7 +10497,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_40("italics", italics);
+    exports_41("italics", italics);
     /**
     * Creates a string with bold
     * @param text The text you wish to be made bold
@@ -10541,7 +10511,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_40("bold", bold);
+    exports_41("bold", bold);
     /**
     * Creates a string with a strike through
     * @param text The text you wish to be have a strike through
@@ -10550,7 +10520,7 @@ System.register(
     function strike(text) {
       return "~~" + text + "~~";
     }
-    exports_40("strike", strike);
+    exports_41("strike", strike);
     /**
     * Creates a markdown link block
     * @param altText The alt text of the link
@@ -10562,7 +10532,7 @@ System.register(
         title === undefined ? "" : ' "' + title + '"'
       })`;
     }
-    exports_40("link", link);
+    exports_41("link", link);
     /**
     * Creates a markdown image block
     * @param altText The alt text of the image
@@ -10572,7 +10542,7 @@ System.register(
     function image(altText, imageLink, title) {
       return `!${link(altText, imageLink, title)}`;
     }
-    exports_40("image", image);
+    exports_41("image", image);
     return {
       setters: [],
       execute: function () {
@@ -10588,9 +10558,9 @@ System.register(
     "https://deno.land/x/deno_markdown/src/main",
     "https://deno.land/x/deno_markdown/src/extensions",
   ],
-  function (exports_41, context_41) {
+  function (exports_42, context_42) {
     "use strict";
-    var __moduleName = context_41 && context_41.id;
+    var __moduleName = context_42 && context_42.id;
     var exportedNames_2 = {
       "ListTypes": true,
       "Markdown": true,
@@ -10602,17 +10572,17 @@ System.register(
           exports[n] = m[n];
         }
       }
-      exports_41(exports);
+      exports_42(exports);
     }
     return {
       setters: [
         function (list_types_ts_2_1) {
-          exports_41({
+          exports_42({
             "ListTypes": list_types_ts_2_1["ListTypes"],
           });
         },
         function (main_ts_1_1) {
-          exports_41({
+          exports_42({
             "Markdown": main_ts_1_1["Markdown"],
           });
         },
@@ -10632,10 +10602,10 @@ System.register(
     "https://deno.land/x/deno_markdown/mod",
     "https://deno.land/x/moment/moment",
   ],
-  function (exports_42, context_42) {
+  function (exports_43, context_43) {
     "use strict";
     var database_ts_4, mod_ts_8, moment_ts_4, _impexp;
-    var __moduleName = context_42 && context_42.id;
+    var __moduleName = context_43 && context_43.id;
     async function export_entries_md(flag) {
       let markdown = new mod_ts_8.Markdown();
       const export_time = moment_ts_4.moment().format("MMMM_Do_YYYY_h_mm_a");
@@ -10681,7 +10651,7 @@ System.register(
           export_entries_json,
           export_entries_md,
         };
-        exports_42("default", _impexp);
+        exports_43("default", _impexp);
       },
     };
   },
@@ -10689,13 +10659,13 @@ System.register(
 System.register(
   "file:///home/yazid/Documents/projects/snippet-cli/lib/help",
   [],
-  function (exports_43, context_43) {
+  function (exports_44, context_44) {
     "use strict";
-    var __moduleName = context_43 && context_43.id;
+    var __moduleName = context_44 && context_44.id;
     return {
       setters: [],
       execute: function () {
-        exports_43(
+        exports_44(
           "default",
           `
 snippet-cli 0.1
@@ -10808,10 +10778,10 @@ System.register(
     "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
     "file:///home/yazid/Documents/projects/snippet-cli/lib/help",
   ],
-  function (exports_44, context_44) {
+  function (exports_45, context_45) {
     "use strict";
     var database_ts_5, help_ts_1, _extras;
-    var __moduleName = context_44 && context_44.id;
+    var __moduleName = context_45 && context_45.id;
     async function reset() {
       await database_ts_5.default.clear();
     }
@@ -10832,7 +10802,7 @@ System.register(
           reset,
           help,
         };
-        exports_44("default", _extras);
+        exports_45("default", _extras);
       },
     };
   },
@@ -10847,7 +10817,7 @@ System.register(
     "https://deno.land/std/flags/mod",
     "file:///home/yazid/Documents/projects/snippet-cli/lib/display",
   ],
-  function (exports_45, context_45) {
+  function (exports_46, context_46) {
     "use strict";
     var search_ts_2,
       write_ts_1,
@@ -10857,7 +10827,7 @@ System.register(
       flags,
       args,
       display_ts_2;
-    var __moduleName = context_45 && context_45.id;
+    var __moduleName = context_46 && context_46.id;
     return {
       setters: [
         function (search_ts_2_1) {
