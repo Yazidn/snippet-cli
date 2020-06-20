@@ -88,25 +88,34 @@ async function is_between_by(input: any, property: string) {
 async function last(flag: any) {
   let search_results: any[] = [];
 
-  let last_reg_ex = regex.last;
-  let matches = last_reg_ex.exec(flag);
+  // const _day_reg_ex = regex.day;
+  const day_matches = regex.day.exec(flag);
+  // let day;
+
+
+  let matches = regex.last.exec(flag);
   let count;
-  let property;
-
-  if (matches ) {
-    count = parseInt(matches[1]);
-    property = matches[2];
-    search_results = await last_by(false, count || 1, property + 's', property);
-  } 
-
-  const _day_reg_ex = regex.day;
-  const day_matches = _day_reg_ex.exec(flag);
-  let day;
+  let p;
 
   if (day_matches) {
-    day = day_matches[0];
-    search_results = await last_by(true, 7, 'days', 'day', flag);
-  } 
+
+    // day = day_matches[0];
+    search_results = await last_by(true, 7, 'days', 'day', day_matches[0]);
+  } else if(matches){
+
+    // let last_reg_ex = regex.last;
+
+  
+    count = parseInt(matches[1]);
+    p = matches[2];
+    search_results = await last_by(false, count || 1, p + 's', p);
+
+    // if (matches) {
+
+    // } 
+
+  }
+
 
   return search_results;
 }
@@ -115,7 +124,7 @@ async function last_by(day :boolean, count: number, what: string, property: any,
   const store = await db.get("entries");
   let _moment = !day? moment(): moment(flag, "dddd");
 
-  console.log(count || 1, property + ('(s)'), 'ago');
+  // console.log(count || 1, property + ('(s)'), 'ago');
 
   return store.filter((e: any) => {
     if (
