@@ -105,12 +105,12 @@ async function remove_recent(input: any) {
   await db.set("entries", updated_store);
 }
 
-async function remove_tag(input :any) {
-  const store = await db.get("tags");;
+async function remove_tag(input: any) {
+  const store = await db.get("tags");
   const tag = store.find((t: any) => t === input);
   if (tag) {
-    const updated_store = store.filter((t :any) => t !== tag);
-    await db.set('tags', updated_store);
+    const updated_store = store.filter((t: any) => t !== tag);
+    await db.set("tags", updated_store);
   }
 }
 
