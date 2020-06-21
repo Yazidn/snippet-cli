@@ -36,7 +36,7 @@ async function write_entry(flag: any, subflags: any) {
   const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
     created_format
   );
-  const text = flag || subflags.args.join(' ');
+  const text = flag || subflags.args.join(" ");
 
   const new_entry = { id: v4.generate(), text, created, tags };
   const updated_store = [new_entry, ...store];
@@ -70,16 +70,40 @@ async function edit_entry(flag: any, args: any) {
   } else console.log("Specified ID is incorrect.");
 }
 
-async function remove_entry(flag: any) {
+async function remove_entry(flag: any, subflags: any, args: any) {
   const store = await db.get("entries");
-  const entry = store.find((e: any) => e.id === flag);
-  if (entry) {
-    const updated_store = store.filter((e: any) => e.id !== flag);
-    await db.set("entries", updated_store);
+  const { all, today, last, date, between, recent } = subflags;
+  console.log(subflags);
 
-    const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-    display(await search.is_same(date), date);
-  } else console.log("Specified ID is incorrect.");
+  if (all) await db.set("entries", []);
+  else if (recent) remove_recent(parseInt(recent));
+  else if (today) remove_by(await search.is_same(moment()));
+  else if (last) remove_by(await search.last(last));
+  else if (date) remove_by(await search.is_same(date));
+  else if (between) remove_by(await search.is_between(between));
+  else if (args.length) {
+    const entry = store.find((e: any) => e.id === flag);
+    if (entry) {
+      const updated_store = store.filter((e: any) => e.id !== flag);
+      await db.set("entries", updated_store);
+
+      const date = moment(entry.created, created_format).format("YYYY-MM-DD");
+      display(await search.is_same(date), date);
+    } else console.log("Specified ID is incorrect.");
+  }
+}
+
+async function remove_by(input: any) {
+  const store = await db.get("entries");
+  const updated_store = store.filter((e: any) => !input.includes(e));
+  await db.set("entries", updated_store);
+}
+
+async function remove_recent(input: any) {
+  const store = await db.get("entries");
+
+  const updated_store = store.filter((e: any, index: number) => index >= input);
+  await db.set("entries", updated_store);
 }
 
 const _write = {

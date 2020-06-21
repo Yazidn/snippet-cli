@@ -39,7 +39,14 @@ if (flags.w || flags.write || args.length)
   });
 
 if (flags.e || flags.edit) write.edit_entry(flags.e || flags.edit, args);
-if (flags.r || flags.remove) write.remove_entry(flags.r || flags.remove);
+if (flags.r || flags.remove) write.remove_entry(flags.r || flags.remove, {
+  today: flags.today,
+  last: flags.l || flags.last,
+  date: flags.d || flags.date,
+  between: [flags.f || flags.from, flags.u || flags.until],
+  all: flags.a || flags.all,
+  recent: flags.recent
+}, args);
 
 // Export & Import
 if (flags.m || flags.markdown)
