@@ -1,17 +1,18 @@
 import db from "./database.ts";
-import { date_input_formats, created_format } from "./formats.ts";
+import {
+  date_input_formats,
+  created_format,
+  is_day_formats,
+  is_month_formats,
+  is_year_formats,
+} from "./formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import regex from "./regex.ts";
 
 async function is_same(input: any) {
-  const is_day = moment(
-    input,
-    ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
-    true
-  ).isValid();
-
-  const is_month = moment(input, ["MM-YYYY", "M", "MM"], true).isValid();
-  const is_year = moment(input, ["YYYY", "YY", "Y"], true).isValid();
+  const is_day = moment(input, is_day_formats, true).isValid();
+  const is_month = moment(input, is_month_formats, true).isValid();
+  const is_year = moment(input, is_year_formats, true).isValid();
 
   if (is_day) return await is_same_by(input, "day");
   else if (is_month) return await is_same_by(input, "month");
@@ -30,24 +31,16 @@ async function is_same_by(input: any, property: string) {
 
 async function is_between(input: any) {
   const is_day =
-    moment(
-      input[0],
-      ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
-      true
-    ).isValid() &&
-    moment(
-      input[1],
-      ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
-      true
-    ).isValid();
+    moment(input[0], is_day_formats, true).isValid() &&
+    moment(input[1], is_day_formats, true).isValid();
 
   const is_month =
-    moment(input[0], ["MM-YYYY", "M", "MM"], true).isValid() &&
-    moment(input[1], ["MM-YYYY", "M", "MM"], true).isValid();
+    moment(input[0], is_month_formats, true).isValid() &&
+    moment(input[1], is_month_formats, true).isValid();
 
   const is_year =
-    moment(input[0], ["YYYY", "YY", "Y"], true).isValid() &&
-    moment(input[1], ["YYYY", "YY", "Y"], true).isValid();
+    moment(input[0], is_year_formats, true).isValid() &&
+    moment(input[1], is_year_formats, true).isValid();
 
   if (is_day) return await is_between_by(input, "day");
   else if (is_month) return await is_between_by(input, "month");
