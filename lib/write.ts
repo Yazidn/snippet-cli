@@ -60,6 +60,8 @@ async function edit_entry(flag: any, args: any) {
   if (entry) {
     entry.text = args[0];
     const semi_updated_store = store.filter((e: any) => e.id !== flag);
+
+    // BUG AROUND HERE
     const updated_store = [entry, ...semi_updated_store];
     await db.set("entries", updated_store);
 
