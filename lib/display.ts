@@ -25,25 +25,25 @@ async function display_today_entries() {
   search_results = store.filter((e: any) => {
     if (moment(e.created, created_format).isSame(moment(), "day")) return e;
   });
-  display(search_results);
+  display(search_results, 'Today');
 }
 
 async function display_all_entries() {
   const entries = await db.get("entries");
-  if (await db.has("entries")) display(await db.get("entries"));
+  if (await db.has("entries")) display(await db.get("entries"), 'All');
 }
 
 async function display_all_tags() {
-  display(await db.get("tags"), true);
+  display(await db.get("tags"),'Tags', true);
 }
 
-async function display(output: any, tags?: boolean) {
+async function display(output: any, context? :string, tags?: boolean) {
   if (output.length === 0) {
-    console.log("Nothing to display!");
+    console.log(`Nothing to display for ${context || ''}`);
   } else {
     if (!tags) {
       const view_mode = await db.get("view_mode");
-
+      console.log(`Displaying: ${context || ''}`);
       if (flags.v === "table" || view_mode === "table") console.table(output);
       else if (flags.v === "mini" || view_mode === "mini") console.log(table(output, ["text"]));
       else if (flags.v === "compact" || view_mode === "compact")
@@ -60,7 +60,10 @@ async function display(output: any, tags?: boolean) {
         });
         console.log(jsonTree(tbl_no_tags_array, false));
       }
-    } else console.log(jsonTree(output, true));
+    } else {
+      console.log(`Displaying: ${context || ''}`);
+      console.log(jsonTree(output, true));
+    } 
   }
 }
 
