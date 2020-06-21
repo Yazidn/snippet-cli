@@ -20,7 +20,7 @@ async function is_same(input: any) {
 
 async function is_same_by(input: any, property: string) {
   const input_to_moment = moment(input, date_input_formats);
-  
+
   const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
@@ -62,7 +62,7 @@ async function is_between(input: any) {
 async function is_between_by(input: any, property: string) {
   const first_moment = moment(input[0], date_input_formats);
   const second_moment = moment(input[1], date_input_formats);
-  
+
   const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
@@ -78,8 +78,8 @@ async function is_between_by(input: any, property: string) {
 }
 
 async function last(flag: any) {
-  const is_day_of_week = regex.day.exec(flag);
-  const is_command = regex.last.exec(flag);
+  const is_day_of_week = regex.rx_day_of_week.exec(flag);
+  const is_command = regex.rx_command.exec(flag);
 
   return await last_by(
     is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
@@ -93,10 +93,14 @@ async function last_by(number_of: number, what: string, flag?: any) {
   return store.filter((e: any) => {
     if (
       moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        moment(flag || [], flag? ['dddd', 'ddd'] : null).subtract(number_of, `${what}s`),
+        moment(flag || [], flag ? ["dddd", "ddd"] : null).subtract(
+          number_of,
+          `${what}s`
+        ),
         what
       )
-    ) return e;
+    )
+      return e;
   });
 }
 

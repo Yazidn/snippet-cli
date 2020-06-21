@@ -8,7 +8,7 @@ import regex from './regex.ts';
 
 async function write_entry(flag: any, subflags: any) {
   let tags: any[] = [];
-  let reg_ex = regex.tag;
+  let reg_ex = regex.rx_tag;
   let tag: any;
 
   do {
