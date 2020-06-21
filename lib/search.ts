@@ -95,7 +95,7 @@ async function last_by(number_of: number, what: string, flag?: any) {
 async function search_by_text(flag: any) {
   const store = await db.get("entries");
   return store.filter((e: any) => {
-    if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) return e;
+    if (e.text.toLowerCase().search(String(flag).toLowerCase()) !== -1) return e;
   });
 }
 
