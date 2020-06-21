@@ -36,7 +36,6 @@ async function write_entry(flag: any, subflags: any) {
   const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
     created_format
   );
-
   const text = flag || subflags.args.join(' ');
 
   const new_entry = { id: v4.generate(), text, created, tags };
