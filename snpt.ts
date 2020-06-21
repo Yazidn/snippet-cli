@@ -45,7 +45,8 @@ if (flags.r || flags.remove) write.remove_entry(flags.r || flags.remove, {
   date: flags.d || flags.date,
   between: [flags.f || flags.from, flags.u || flags.until],
   all: flags.a || flags.all,
-  recent: flags.recent
+  recent: flags.recent,
+  tag: flags.t || flags.tag
 }, args);
 
 // Export & Import

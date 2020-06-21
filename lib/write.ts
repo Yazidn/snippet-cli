@@ -72,9 +72,10 @@ async function edit_entry(flag: any, args: any) {
 
 async function remove_entry(flag: any, subflags: any, args: any) {
   const store = await db.get("entries");
-  const { all, today, last, date, between, recent } = subflags;
+  const { all, today, last, date, between, recent, tag } = subflags;
 
-  if (all) await db.set("entries", []);
+  if (tag) remove_tag(tag);
+  else if (all) await db.set("entries", []);
   else if (recent) remove_recent(parseInt(recent));
   else if (today) remove_by(await search.is_same(moment()));
   else if (last) remove_by(await search.last(last));
@@ -100,9 +101,17 @@ async function remove_by(input: any) {
 
 async function remove_recent(input: any) {
   const store = await db.get("entries");
-
   const updated_store = store.filter((e: any, index: number) => index >= input);
   await db.set("entries", updated_store);
+}
+
+async function remove_tag(input :any) {
+  const store = await db.get("tags");;
+  const tag = store.find((t: any) => t === input);
+  if (tag) {
+    const updated_store = store.filter((t :any) => t !== tag);
+    await db.set('tags', updated_store);
+  }
 }
 
 const _write = {
