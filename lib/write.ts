@@ -73,7 +73,6 @@ async function edit_entry(flag: any, args: any) {
 async function remove_entry(flag: any, subflags: any, args: any) {
   const store = await db.get("entries");
   const { all, today, last, date, between, recent } = subflags;
-  console.log(subflags);
 
   if (all) await db.set("entries", []);
   else if (recent) remove_recent(parseInt(recent));
