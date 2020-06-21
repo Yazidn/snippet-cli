@@ -8,13 +8,12 @@ import regex from './regex.ts';
 
 async function write_entry(flag: any, subflags: any) {
   let tags: any[] = [];
-  let reg_ex = regex.rx_tag;
-  let tag: any;
+  let is_tag: any;
 
   do {
-    tag = reg_ex.exec(flag);
-    if (tag) tags.push(tag[2]);
-  } while (tag);
+    is_tag = regex.rx_tag.exec(flag);
+    if (is_tag) tags.push(is_tag[2]);
+  } while (is_tag);
   tags = [...new Set(tags)];
 
   const store = await db.get("entries");
