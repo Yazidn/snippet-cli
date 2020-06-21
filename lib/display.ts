@@ -42,11 +42,13 @@ async function display(output: any, tags?: boolean) {
     console.log("Nothing to display!");
   } else {
     if (!tags) {
-      if (flags.v === "table") console.table(output);
-      else if (flags.v === "mini") console.log(table(output, ["text"]));
-      else if (flags.v === "compact")
+      const view_mode = await db.get("view_mode");
+
+      if (flags.v === "table" || view_mode === "table") console.table(output);
+      else if (flags.v === "mini" || view_mode === "mini") console.log(table(output, ["text"]));
+      else if (flags.v === "compact" || view_mode === "compact")
         console.log(table(output, ["text", "created"]));
-      else if (flags.v === "full")
+      else if (flags.v === "full" || view_mode === "full")
         console.log(table(output, ["text", "created", "id"]));
       else {
         const tbl_no_tags_array = output.map((e: any) => {

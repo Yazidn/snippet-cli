@@ -50,5 +50,6 @@ if (flags.i || flags.import)
   import_export.import_entries(flags.i || flags.import);
 
 // Extras
+if (flags.setview) extras.set_view_mode(flags.setview);
 if (flags.c || flags.clear) extras.reset();
 if (flags.h || flags.help) extras.help();
