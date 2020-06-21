@@ -45,17 +45,17 @@ async function display(output: any, context? :string, tags?: boolean) {
       const default_view_mode = await db.get("view_mode");
       let display_mode = 'tree';
 
-      console.log(`
-  ----------
-  Displaying: ${context || ''}
-  ----------
-      `);
-
       if (flags.v) {
         display_mode = flags.v;
       } else if(['mini', 'compact', 'full', 'table', 'tree'].includes(default_view_mode)) {
           display_mode = default_view_mode;
       }
+      
+      console.log(`
+
+  | Displaying: ${context || ''}  as "${display_mode}"
+  
+      `);
 
       if (display_mode === "mini") console.log(table(output, ["text"]));
       else if (display_mode === "compact")
