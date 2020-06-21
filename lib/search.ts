@@ -78,7 +78,7 @@ async function last(flag: any) {
 
   return await last_by(
     is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
-    is_day_of_week ? "days" : is_command ? is_command[2] : flag,
+    is_day_of_week ? "day" : is_command ? is_command[2] : flag,
     is_day_of_week ? flag : false
   );
 }
