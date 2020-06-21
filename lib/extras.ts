@@ -3,6 +3,7 @@ import h_help from "./help.ts";
 
 async function reset() {
   await db.clear();
+  console.log('Starting from scratch..!');
 }
 
 async function help() {
