@@ -26,18 +26,20 @@ async function write_entry(flag: any, subflags: any) {
   const at = subflags.at;
 
   const write_moment = moment();
+
   const date = on
     ? moment(on, date_input_formats).format("YYYY-MM-DD")
     : write_moment.format("YYYY-MM-DD");
   const time = at
     ? moment(at, time_input_formats).format("h:mm:ss a")
     : write_moment.format("h:mm:ss a");
-
   const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
     created_format
   );
 
-  const new_entry = { id: v4.generate(), text: flag, created, tags };
+  const text = flag || subflags.args.join(' ');
+
+  const new_entry = { id: v4.generate(), text, created, tags };
   const updated_store = [new_entry, ...store];
   await db.set("entries", updated_store);
 

@@ -33,6 +33,10 @@ An entry based journaling application for your console/terminal built in [Deno](
     - **e.g. `snpt --today`**
 
 ### Write
+- Write a new entry. `<entry>` *(Without using the -w flag)*
+    - **e.g. `snpt Writing a quick entry!`** or **e.g. `"snpt Writing a quick entry!"`**
+    - Note that when you don't don't wrap your entry in "<entry>" or '<entry>', you need to manually escape special characters like the apostrophe or a hash symbol when using tags. **(e.g. snpt i\'m writing an \#entry)**
+
 - Write a new entry. `-w <entry>, --write <entry>`
     - **e.g. `snpt -w "snpt is awesome!"`**
 

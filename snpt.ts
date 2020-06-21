@@ -30,10 +30,11 @@ if ((flags.f && flags.u) || (flags.from && flags.until))
 if (flags.l || flags.last) display(await search.last(flags.l || flags.last));
 
 // Write
-if (flags.w || flags.write)
+if (flags.w || flags.write || args.length)
   write.write_entry(flags.w || flags.write, {
     on: flags.on,
     at: flags.at,
+    args
   });
 
 if (flags.e || flags.edit) write.edit_entry(flags.e || flags.edit, args);
