@@ -1,5 +1,5 @@
 import db from "./database.ts";
-import { date_input_formats } from "./formats.ts";
+import { date_input_formats, created_format } from "./formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import regex from "./regex.ts";
 
@@ -23,12 +23,7 @@ async function is_same_by(input: any, property: string) {
 
   const store = await db.get("entries");
   return store.filter((e: any) => {
-    if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
-        input_to_moment,
-        property
-      )
-    )
+    if (moment(e.created, created_format).isSame(input_to_moment, property))
       return e;
   });
 }
@@ -66,7 +61,7 @@ async function is_between_by(input: any, property: string) {
   const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isBetween(
+      moment(e.created, created_format).isBetween(
         first_moment,
         second_moment,
         property,
@@ -92,7 +87,7 @@ async function last_by(number_of: number, what: string, flag?: any) {
   const store = await db.get("entries");
   return store.filter((e: any) => {
     if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+      moment(e.created, created_format).isSame(
         moment(flag || [], flag ? ["dddd", "ddd"] : null).subtract(
           number_of,
           `${what}s`

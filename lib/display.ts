@@ -2,6 +2,7 @@ import db from "./database.ts";
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from "https://deno.land/x/minitable@v1.0/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
+import { created_format } from "./formats.ts";
 
 import { parse } from "https://deno.land/std/flags/mod.ts";
 const flags = parse(Deno.args);
@@ -22,10 +23,7 @@ async function display_today_entries() {
 
   const store = await db.get("entries");
   search_results = store.filter((e: any) => {
-    if (
-      moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(moment(), "day")
-    )
-      return e;
+    if (moment(e.created, created_format).isSame(moment(), "day")) return e;
   });
   display(search_results);
 }

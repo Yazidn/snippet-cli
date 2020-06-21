@@ -1,10 +1,14 @@
 import db from "./database.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
-import { date_input_formats, time_input_formats } from "./formats.ts";
+import {
+  date_input_formats,
+  time_input_formats,
+  created_format,
+} from "./formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import { display } from "./display.ts";
 import search from "./search.ts";
-import regex from './regex.ts';
+import regex from "./regex.ts";
 
 async function write_entry(flag: any, subflags: any) {
   let tags: any[] = [];
@@ -30,7 +34,7 @@ async function write_entry(flag: any, subflags: any) {
     : write_moment.format("h:mm:ss a");
 
   const created = moment(`${date} ${time}`, "YYYY-MM-DD h:mm:ss a").format(
-    "dddd, MMMM Do YYYY, h:mm:ss a"
+    created_format
   );
 
   const new_entry = { id: v4.generate(), text: flag, created, tags };
@@ -58,7 +62,7 @@ async function edit_entry(flag: any, args: any) {
     const updated_store = [entry, ...semi_updated_store];
     await db.set("entries", updated_store);
 
-    const date = moment(entry.created, "dddd, MMMM Do YYYY, h:mm:ss a");
+    const date = moment(entry.created, created_format);
     display(await search.is_same(date));
   } else console.log("Specified ID is incorrect.");
 }
@@ -70,7 +74,7 @@ async function remove_entry(flag: any) {
     const updated_store = store.filter((e: any) => e.id !== flag);
     await db.set("entries", updated_store);
 
-    const date = moment(entry.created, "dddd, MMMM Do YYYY, h:mm:ss a");
+    const date = moment(entry.created, created_format);
     display(await search.is_same(date));
   } else console.log("Specified ID is incorrect.");
 }
