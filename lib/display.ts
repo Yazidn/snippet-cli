@@ -42,23 +42,36 @@ async function display(output: any, context? :string, tags?: boolean) {
     console.log(`Nothing to display for ${context || ''}`);
   } else {
     if (!tags) {
-      const view_mode = await db.get("view_mode");
-      console.log(`Displaying: ${context || ''}`);
-      if (flags.v === "table" || view_mode === "table") console.table(output);
-      else if (flags.v === "mini" || view_mode === "mini") console.log(table(output, ["text"]));
-      else if (flags.v === "compact" || view_mode === "compact")
+      const default_view_mode = await db.get("view_mode");
+      let display_mode = 'tree';
+
+      console.log(`
+  ----------
+  Displaying: ${context || ''}
+  ----------
+      `);
+
+      if (flags.v) {
+        display_mode = flags.v;
+      } else if(['mini', 'compact', 'full', 'table', 'tree'].includes(default_view_mode)) {
+          display_mode = default_view_mode;
+      }
+
+      if (display_mode === "mini") console.log(table(output, ["text"]));
+      else if (display_mode === "compact")
         console.log(table(output, ["text", "created"]));
-      else if (flags.v === "full" || view_mode === "full")
+      else if (display_mode === "full")
         console.log(table(output, ["text", "created", "id"]));
+      else if (display_mode === "table") console.table(output);
       else {
-        const tbl_no_tags_array = output.map((e: any) => {
+        const formatted_output = output.map((e: any) => {
           return {
             [e.text]: e.text,
             [e.created]: e.created,
             [`ID: ${e.id}`]: e.id,
           };
         });
-        console.log(jsonTree(tbl_no_tags_array, false));
+        console.log(jsonTree(formatted_output, false));
       }
     } else {
       console.log(`Displaying: ${context || ''}`);
