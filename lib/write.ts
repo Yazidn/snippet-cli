@@ -62,7 +62,7 @@ async function edit_entry(flag: any, args: any) {
     const semi_updated_store = store.filter((e: any) => e.id !== flag);
 
     const updated_store = [entry, ...semi_updated_store];
-    await db.set("entries", []);
+    await db.set("entries", []); // Temporary
     await db.set("entries", updated_store);
 
     const date = moment(entry.created, created_format).format("YYYY-MM-DD");
