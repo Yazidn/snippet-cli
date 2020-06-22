@@ -80,8 +80,9 @@ async function remove_entry(flag: any, subflags: any, args: any) {
   else if (today) remove_by(await search.is_same(moment()));
   else if (last) remove_by(await search.last(last));
   else if (date) remove_by(await search.is_same(date));
-  else if (between) remove_by(await search.is_between(between));
-  else if (args.length) {
+  else if (between[0] && between[1])
+    remove_by(await search.is_between(between));
+  else if (flag) {
     const entry = store.find((e: any) => e.id === flag);
     if (entry) {
       const updated_store = store.filter((e: any) => e.id !== flag);
