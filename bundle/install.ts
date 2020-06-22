@@ -3524,12 +3524,15 @@ System.register(
       ],
       execute: async function () {
         initialize = async () => {
-          const db = new mod_ts_3.Store({ name: "snpt", path: "./db" });
+          const db = new mod_ts_3.Store({ name: "snpt.json", path: "./db" });
           if (!(await db.has("entries"))) {
             await db.set("entries", []);
           }
           if (!(await db.has("tags"))) {
             await db.set("tags", []);
+          }
+          if (!(await db.has("view_mode"))) {
+            await db.set("view_mode", "tree");
           }
           return db;
         };
@@ -3544,11 +3547,17 @@ System.register(
   [],
   function (exports_17, context_17) {
     "use strict";
-    var date_input_formats, time_input_formats;
+    var date_input_formats,
+      time_input_formats,
+      created_format,
+      is_day_formats,
+      is_month_formats,
+      is_year_formats;
     var __moduleName = context_17 && context_17.id;
     return {
       setters: [],
       execute: function () {
+        // All
         date_input_formats = [
           "YYYY-MM-DD",
           "DD-MM-YYYY",
@@ -3566,6 +3575,23 @@ System.register(
         exports_17("date_input_formats", date_input_formats);
         time_input_formats = ["h a", "h:mm a", "h:mm", "h:mm:ss a"];
         exports_17("time_input_formats", time_input_formats);
+        // Specific
+        created_format = "dddd, MMMM Do YYYY, h:mm:ss a";
+        exports_17("created_format", created_format);
+        // Search
+        is_day_formats = [
+          "YYYY-MM-DD",
+          "DD-MM-YYYY",
+          "DD-MM-YY",
+          "YY-MM-DD",
+          "M-D",
+          "D-M",
+        ];
+        exports_17("is_day_formats", is_day_formats);
+        is_month_formats = ["MM-YYYY", "M", "MM"];
+        exports_17("is_month_formats", is_month_formats);
+        is_year_formats = ["YYYY", "YY", "Y"];
+        exports_17("is_year_formats", is_year_formats);
       },
     };
   },
@@ -7875,9 +7901,10 @@ System.register(
       setters: [],
       execute: function () {
         _regex = {
-          tag: /(@|#)(\w+)/g,
-          last: /(\d*)(?<![A-Za-z])(day|week|month|year)/g,
-          day: /(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/gi,
+          rx_tag: /(@|#)(\w+)/g,
+          rx_command: /(\d*)(?<![A-Za-z])(day|week|month|year)/g,
+          rx_day_of_week:
+            /(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/gi,
         };
         exports_19("default", _regex);
       },
@@ -7899,13 +7926,19 @@ System.register(
     async function is_same(input) {
       const is_day = moment_ts_1.moment(
         input,
-        ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
+        formats_ts_1.is_day_formats,
         true,
       ).isValid();
-      const is_month = moment_ts_1.moment(input, ["MM-YYYY", "M", "MM"], true)
-        .isValid();
-      const is_year = moment_ts_1.moment(input, ["YYYY", "YY", "Y"], true)
-        .isValid();
+      const is_month = moment_ts_1.moment(
+        input,
+        formats_ts_1.is_month_formats,
+        true,
+      ).isValid();
+      const is_year = moment_ts_1.moment(
+        input,
+        formats_ts_1.is_year_formats,
+        true,
+      ).isValid();
       if (is_day) {
         return await is_same_by(input, "day");
       } else if (is_month) {
@@ -7922,7 +7955,7 @@ System.register(
       const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+          moment_ts_1.moment(e.created, formats_ts_1.created_format).isSame(
             input_to_moment,
             property,
           )
@@ -7933,22 +7966,20 @@ System.register(
     }
     async function is_between(input) {
       const is_day =
-        moment_ts_1.moment(
-          input[0],
-          ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
-          true,
-        ).isValid() &&
-        moment_ts_1.moment(
-          input[1],
-          ["YYYY-MM-DD", "DD-MM-YYYY", "DD-MM-YY", "YY-MM-DD", "M-D", "D-M"],
-          true,
-        ).isValid();
+        moment_ts_1.moment(input[0], formats_ts_1.is_day_formats, true)
+          .isValid() &&
+        moment_ts_1.moment(input[1], formats_ts_1.is_day_formats, true)
+          .isValid();
       const is_month =
-        moment_ts_1.moment(input[0], ["MM-YYYY", "M", "MM"], true).isValid() &&
-        moment_ts_1.moment(input[1], ["MM-YYYY", "M", "MM"], true).isValid();
+        moment_ts_1.moment(input[0], formats_ts_1.is_month_formats, true)
+          .isValid() &&
+        moment_ts_1.moment(input[1], formats_ts_1.is_month_formats, true)
+          .isValid();
       const is_year =
-        moment_ts_1.moment(input[0], ["YYYY", "YY", "Y"], true).isValid() &&
-        moment_ts_1.moment(input[1], ["YYYY", "YY", "Y"], true).isValid();
+        moment_ts_1.moment(input[0], formats_ts_1.is_year_formats, true)
+          .isValid() &&
+        moment_ts_1.moment(input[1], formats_ts_1.is_year_formats, true)
+          .isValid();
       if (is_day) {
         return await is_between_by(input, "day");
       } else if (is_month) {
@@ -7969,19 +8000,23 @@ System.register(
       const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a")
-            .isBetween(first_moment, second_moment, property, "[]")
+          moment_ts_1.moment(e.created, formats_ts_1.created_format).isBetween(
+            first_moment,
+            second_moment,
+            property,
+            "[]",
+          )
         ) {
           return e;
         }
       });
     }
     async function last(flag) {
-      const is_day_of_week = regex_ts_1.default.day.exec(flag);
-      const is_command = regex_ts_1.default.last.exec(flag);
+      const is_day_of_week = regex_ts_1.default.rx_day_of_week.exec(flag);
+      const is_command = regex_ts_1.default.rx_command.exec(flag);
       return await last_by(
         is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
-        is_day_of_week ? "days" : is_command ? is_command[2] : flag,
+        is_day_of_week ? "day" : is_command ? is_command[2] : flag,
         is_day_of_week ? flag : false,
       );
     }
@@ -7989,7 +8024,7 @@ System.register(
       const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+          moment_ts_1.moment(e.created, formats_ts_1.created_format).isSame(
             moment_ts_1.moment(flag || [], flag ? ["dddd", "ddd"] : null)
               .subtract(number_of, `${what}s`),
             what,
@@ -8002,7 +8037,7 @@ System.register(
     async function search_by_text(flag) {
       const store = await database_ts_1.default.get("entries");
       return store.filter((e) => {
-        if (e.text.toLowerCase().search(flag.toLowerCase()) !== -1) {
+        if (e.text.toLowerCase().search(String(flag).toLowerCase()) !== -1) {
           return e;
         }
       });
@@ -9816,11 +9851,18 @@ System.register(
     "https://deno.land/x/json_tree/mod",
     "https://deno.land/x/minitable@v1.0/mod",
     "https://deno.land/x/moment/moment",
+    "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
     "https://deno.land/std/flags/mod",
   ],
   function (exports_36, context_36) {
     "use strict";
-    var database_ts_2, mod_ts_4, mod_ts_5, moment_ts_2, mod_ts_6, flags;
+    var database_ts_2,
+      mod_ts_4,
+      mod_ts_5,
+      moment_ts_2,
+      formats_ts_2,
+      mod_ts_6,
+      flags;
     var __moduleName = context_36 && context_36.id;
     function init_display() {
       if (Object.keys(flags).length !== 1) {
@@ -9845,7 +9887,7 @@ System.register(
       const store = await database_ts_2.default.get("entries");
       search_results = store.filter((e) => {
         if (
-          moment_ts_2.moment(e.created, "dddd, MMMM Do YYYY, h:mm:ss a").isSame(
+          moment_ts_2.moment(e.created, formats_ts_2.created_format).isSame(
             moment_ts_2.moment(),
             "day",
           )
@@ -9853,42 +9895,61 @@ System.register(
           return e;
         }
       });
-      display(search_results);
+      display(search_results, "Today");
     }
     exports_36("display_today_entries", display_today_entries);
     async function display_all_entries() {
       const entries = await database_ts_2.default.get("entries");
       if (await database_ts_2.default.has("entries")) {
-        display(await database_ts_2.default.get("entries"));
+        display(await database_ts_2.default.get("entries"), "All");
       }
     }
     async function display_all_tags() {
-      display(await database_ts_2.default.get("tags"), true);
+      display(await database_ts_2.default.get("tags"), "Tags", true);
     }
-    async function display(output, tags) {
+    async function display(output, context, tags) {
       if (output.length === 0) {
-        console.log("Nothing to display!");
+        console.log(`Nothing to display for ${context || ""}`);
       } else {
         if (!tags) {
-          if (flags.v === "table") {
-            console.table(output);
-          } else if (flags.v === "mini") {
+          const default_view_mode = await database_ts_2.default.get(
+            "view_mode",
+          );
+          let display_mode = "tree";
+          if (flags.v) {
+            display_mode = flags.v;
+          } else if (
+            ["mini", "compact", "full", "table", "tree"].includes(
+              default_view_mode,
+            )
+          ) {
+            display_mode = default_view_mode;
+          }
+          console.log(`
+
+  | Displaying: ${context || ""}  as "${display_mode}"
+  
+      `);
+          if (display_mode === "mini") {
             console.log(mod_ts_5.table(output, ["text"]));
-          } else if (flags.v === "compact") {
+          } else if (display_mode === "compact") {
             console.log(mod_ts_5.table(output, ["text", "created"]));
-          } else if (flags.v === "full") {
+          } else if (display_mode === "full") {
             console.log(mod_ts_5.table(output, ["text", "created", "id"]));
+          } else if (display_mode === "table") {
+            console.table(output);
           } else {
-            const tbl_no_tags_array = output.map((e) => {
+            const formatted_output = output.map((e) => {
               return {
                 [e.text]: e.text,
                 [e.created]: e.created,
                 [`ID: ${e.id}`]: e.id,
               };
             });
-            console.log(mod_ts_4.jsonTree(tbl_no_tags_array, false));
+            console.log(mod_ts_4.jsonTree(formatted_output, false));
           }
         } else {
+          console.log(`Displaying: ${context || ""}`);
           console.log(mod_ts_4.jsonTree(output, true));
         }
       }
@@ -9907,6 +9968,9 @@ System.register(
         },
         function (moment_ts_2_1) {
           moment_ts_2 = moment_ts_2_1;
+        },
+        function (formats_ts_2_1) {
+          formats_ts_2 = formats_ts_2_1;
         },
         function (mod_ts_6_1) {
           mod_ts_6 = mod_ts_6_1;
@@ -9933,7 +9997,7 @@ System.register(
     "use strict";
     var database_ts_3,
       mod_ts_7,
-      formats_ts_2,
+      formats_ts_3,
       moment_ts_3,
       display_ts_1,
       search_ts_1,
@@ -9942,39 +10006,34 @@ System.register(
     var __moduleName = context_37 && context_37.id;
     async function write_entry(flag, subflags) {
       let tags = [];
-      let reg_ex = regex_ts_2.default.tag;
-      let tag;
+      let is_tag;
       do {
-        tag = reg_ex.exec(flag);
-        if (tag) {
-          tags.push(tag[2]);
+        is_tag = regex_ts_2.default.rx_tag.exec(flag);
+        if (is_tag) {
+          tags.push(is_tag[2]);
         }
-      } while (tag);
+      } while (is_tag);
       tags = [...new Set(tags)];
       const store = await database_ts_3.default.get("entries");
       const on = subflags.on;
       const at = subflags.at;
       const write_moment = moment_ts_3.moment();
       const date = on
-        ? moment_ts_3.moment(on, formats_ts_2.date_input_formats).format(
+        ? moment_ts_3.moment(on, formats_ts_3.date_input_formats).format(
           "YYYY-MM-DD",
         )
         : write_moment.format("YYYY-MM-DD");
       const time = at
-        ? moment_ts_3.moment(at, formats_ts_2.time_input_formats).format(
+        ? moment_ts_3.moment(at, formats_ts_3.time_input_formats).format(
           "h:mm:ss a",
         )
         : write_moment.format("h:mm:ss a");
       const created = moment_ts_3.moment(
         `${date} ${time}`,
         "YYYY-MM-DD h:mm:ss a",
-      ).format("dddd, MMMM Do YYYY, h:mm:ss a");
-      const new_entry = {
-        id: mod_ts_7.v4.generate(),
-        text: flag,
-        created,
-        tags,
-      };
+      ).format(formats_ts_3.created_format);
+      const text = flag || subflags.args.join(" ");
+      const new_entry = { id: mod_ts_7.v4.generate(), text, created, tags };
       const updated_store = [new_entry, ...store];
       await database_ts_3.default.set("entries", updated_store);
       if (tags.length !== 0) {
@@ -9987,7 +10046,7 @@ System.register(
         const updated_tags_store = [...tags, ...tags_store];
         await database_ts_3.default.set("tags", updated_tags_store);
       }
-      display_ts_1.display(await search_ts_1.default.is_same(date));
+      display_ts_1.display(await search_ts_1.default.is_same(date), date);
     }
     async function edit_entry(flag, args) {
       const store = await database_ts_3.default.get("entries");
@@ -9996,29 +10055,65 @@ System.register(
         entry.text = args[0];
         const semi_updated_store = store.filter((e) => e.id !== flag);
         const updated_store = [entry, ...semi_updated_store];
+        await database_ts_3.default.set("entries", []); // Temporary
         await database_ts_3.default.set("entries", updated_store);
         const date = moment_ts_3.moment(
           entry.created,
-          "dddd, MMMM Do YYYY, h:mm:ss a",
-        );
-        display_ts_1.display(await search_ts_1.default.is_same(date));
+          formats_ts_3.created_format,
+        ).format("YYYY-MM-DD");
+        display_ts_1.display(await search_ts_1.default.is_same(date), date);
       } else {
         console.log("Specified ID is incorrect.");
       }
     }
-    async function remove_entry(flag) {
+    async function remove_entry(flag, subflags, args) {
       const store = await database_ts_3.default.get("entries");
-      const entry = store.find((e) => e.id === flag);
-      if (entry) {
-        const updated_store = store.filter((e) => e.id !== flag);
-        await database_ts_3.default.set("entries", updated_store);
-        const date = moment_ts_3.moment(
-          entry.created,
-          "dddd, MMMM Do YYYY, h:mm:ss a",
-        );
-        display_ts_1.display(await search_ts_1.default.is_same(date));
-      } else {
-        console.log("Specified ID is incorrect.");
+      const { all, today, last, date, between, recent, tag } = subflags;
+      if (tag) {
+        remove_tag(tag);
+      } else if (all) {
+        await database_ts_3.default.set("entries", []);
+      } else if (recent) {
+        remove_recent(parseInt(recent));
+      } else if (today) {
+        remove_by(await search_ts_1.default.is_same(moment_ts_3.moment()));
+      } else if (last) {
+        remove_by(await search_ts_1.default.last(last));
+      } else if (date) {
+        remove_by(await search_ts_1.default.is_same(date));
+      } else if (between[0] && between[1]) {
+        remove_by(await search_ts_1.default.is_between(between));
+      } else if (flag) {
+        const entry = store.find((e) => e.id === flag);
+        if (entry) {
+          const updated_store = store.filter((e) => e.id !== flag);
+          await database_ts_3.default.set("entries", updated_store);
+          const date = moment_ts_3.moment(
+            entry.created,
+            formats_ts_3.created_format,
+          ).format("YYYY-MM-DD");
+          display_ts_1.display(await search_ts_1.default.is_same(date), date);
+        } else {
+          console.log("Specified ID is incorrect.");
+        }
+      }
+    }
+    async function remove_by(input) {
+      const store = await database_ts_3.default.get("entries");
+      const updated_store = store.filter((e) => !input.includes(e));
+      await database_ts_3.default.set("entries", updated_store);
+    }
+    async function remove_recent(input) {
+      const store = await database_ts_3.default.get("entries");
+      const updated_store = store.filter((e, index) => index >= input);
+      await database_ts_3.default.set("entries", updated_store);
+    }
+    async function remove_tag(input) {
+      const store = await database_ts_3.default.get("tags");
+      const tag = store.find((t) => t === input);
+      if (tag) {
+        const updated_store = store.filter((t) => t !== tag);
+        await database_ts_3.default.set("tags", updated_store);
       }
     }
     return {
@@ -10029,8 +10124,8 @@ System.register(
         function (mod_ts_7_1) {
           mod_ts_7 = mod_ts_7_1;
         },
-        function (formats_ts_2_1) {
-          formats_ts_2 = formats_ts_2_1;
+        function (formats_ts_3_1) {
+          formats_ts_3 = formats_ts_3_1;
         },
         function (moment_ts_3_1) {
           moment_ts_3 = moment_ts_3_1;
@@ -10784,9 +10879,14 @@ System.register(
     var __moduleName = context_45 && context_45.id;
     async function reset() {
       await database_ts_5.default.clear();
+      console.log("Starting from scratch..!");
     }
     async function help() {
       console.log(help_ts_1.default);
+    }
+    async function set_view_mode(flag) {
+      await database_ts_5.default.set("view_mode", flag);
+      console.log(`Default View Mode is: ${flag}`);
     }
     return {
       setters: [
@@ -10799,6 +10899,7 @@ System.register(
       ],
       execute: function () {
         _extras = {
+          set_view_mode,
           reset,
           help,
         };
@@ -10856,16 +10957,19 @@ System.register(
         if (flags.s || flags.search) {
           display_ts_2.display(
             await search_ts_2.default.search_by_text(flags.s || flags.search),
+            flags.s || flags.search,
           );
         }
         if (flags.t || flags.tag) {
           display_ts_2.display(
             await search_ts_2.default.search_by_tag(flags.t || flags.tag),
+            flags.t || flags.tag,
           );
         }
         if (flags.d || flags.date) {
           display_ts_2.display(
             await search_ts_2.default.is_same(flags.d || flags.date),
+            flags.d || flags.date,
           );
         }
         if ((flags.f && flags.u) || (flags.from && flags.until)) {
@@ -10875,25 +10979,36 @@ System.register(
                 ? [flags.f, flags.u]
                 : [flags.from, flags.until],
             ),
+            `${flags.f || flags.from} ---> ${flags.u || flags.until}`,
           );
         }
         if (flags.l || flags.last) {
           display_ts_2.display(
             await search_ts_2.default.last(flags.l || flags.last),
+            flags.l || flags.last,
           );
         }
         // Write
-        if (flags.w || flags.write) {
+        if (flags.w || flags.write || args.length) {
           write_ts_1.default.write_entry(flags.w || flags.write, {
             on: flags.on,
             at: flags.at,
+            args,
           });
         }
         if (flags.e || flags.edit) {
           write_ts_1.default.edit_entry(flags.e || flags.edit, args);
         }
         if (flags.r || flags.remove) {
-          write_ts_1.default.remove_entry(flags.r || flags.remove);
+          write_ts_1.default.remove_entry(flags.r || flags.remove, {
+            today: flags.today,
+            last: flags.l || flags.last,
+            date: flags.d || flags.date,
+            between: [flags.f || flags.from, flags.u || flags.until],
+            all: flags.a || flags.all,
+            recent: flags.recent,
+            tag: flags.t || flags.tag,
+          }, args);
         }
         // Export & Import
         if (flags.m || flags.markdown) {
@@ -10908,6 +11023,9 @@ System.register(
           import_export_ts_1.default.import_entries(flags.i || flags.import);
         }
         // Extras
+        if (flags.setview) {
+          extras_ts_1.default.set_view_mode(flags.setview);
+        }
         if (flags.c || flags.clear) {
           extras_ts_1.default.reset();
         }
