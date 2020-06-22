@@ -34,7 +34,7 @@ An entry based journaling application for your console/terminal built in [Deno](
 
 ### Write
 - Write a new entry. `<entry>` *(Without using the -w flag)*
-    - **e.g. `snpt Writing a quick entry!`** or **e.g. `"snpt Writing a quick entry!"`**
+    - **e.g. `snpt Writing a quick entry!`** or **e.g. `snpt "Writing a quick entry!"`**
     - Note that when you don't don't wrap your entry in "<entry>" or '<entry>', you need to manually escape special characters like the apostrophe or a hash symbol when using tags. **(e.g. snpt i\'m writing an \#entry)**
 
 - Write a new entry. `-w <entry>, --write <entry>`
@@ -49,8 +49,28 @@ An entry based journaling application for your console/terminal built in [Deno](
 - Edit an entry. `-e, --edit <entry_id> <updated_entry_text>`
     - **e.g. `snpt -e 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d "Hello again, world!"`**
 
+### Remove
 - Remove an entry. `-r, --remove <entry_id>`
     - **e.g. `snpt -r 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d`**
+
+- Remove latest entries. `-r --recent <number_of_entries>`
+    - **e.g. `snpt -r --recent 1`**
+
+- Remove today entries. `-r --today`
+    - **e.g. `snpt -r --today`**
+
+- Remove all entries. `-r --all`
+    - **e.g. `snpt -r --all`**
+
+- Remove entries from a specific date. `-r --date <date>`
+    - **e.g. `snpt -r --date 6-2020`** *(Removes all entries from june 2020.)*
+    - **e.g. `snpt -r --date 6-12`** *(Removes all entries from june 12th, 2020.)*
+
+- Remove entries between 2 dates. `-r, --from <first_date> --until <second_date>`
+    - **e.g. `snpt -r -f 4-2020 -u 6-2020`**
+
+- Remove entries using --last command discussed below. `-r, --last <command>`
+    - **e.g. `snpt -r --last thursday`**
 
 ### Search
 - Display entries for a specified date *(See date formats below)*. `-d, --date`
