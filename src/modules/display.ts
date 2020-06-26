@@ -55,21 +55,29 @@ async function display(output: any, context?: string, tags?: boolean) {
 
       console.log(`\n| Displaying: ${context || ""}  as "${display_mode}"\n`);
 
-      if (display_mode === "mini") console.log(table(output, ["text"]));
-      else if (display_mode === "compact")
-        console.log(table(output, ["text", "created"]));
-      else if (display_mode === "full")
-        console.log(table(output, ["text", "created", "id"]));
-      else if (display_mode === "table") console.table(output);
-      else {
-        const formatted_output = output.map((e: any) => {
-          return {
-            [e.text]: e.text,
-            [e.created]: e.created,
-            [`ID: ${e.id}`]: e.id,
-          };
-        });
-        console.log(jsonTree(formatted_output, false));
+      switch(display_mode) {
+        case 'mini':
+          console.log(table(output, ["text"]));
+          break;
+        case 'compact':
+          console.log(table(output, ["text", "created"]));
+          break;
+        case 'full':
+          console.log(table(output, ["text", "created", "id"]));
+          break;
+        case 'table':
+          console.table(output);
+          break;
+        default: {
+          const formatted_output = output.map((e: any) => {
+            return {
+              [e.text]: e.text,
+              [e.created]: e.created,
+              [`ID: ${e.id}`]: e.id,
+            };
+          });
+          console.log(jsonTree(formatted_output, false));
+        }
       }
     } else {
       console.log(`Displaying: ${context || ""}`);
