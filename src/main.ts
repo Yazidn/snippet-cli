@@ -1,6 +1,6 @@
 import find from "./modules/find.ts";
 import modify from "./modules/modify.ts";
-import display from './modules/display.ts';
+import display from "./modules/display.ts";
 import { remove } from "./modules/remove.ts";
 import import_export from "./modules/import_export.ts";
 import extras from "./modules/extras.ts";
@@ -45,7 +45,10 @@ switch (true) {
 
   // By "Last" Command
   case Boolean(input.find.by_command): {
-    display.render(await find.last(input.find.by_command), input.find.by_command);
+    display.render(
+      await find.last(input.find.by_command),
+      input.find.by_command
+    );
     break;
   }
 
