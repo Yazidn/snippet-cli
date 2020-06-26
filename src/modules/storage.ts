@@ -1,14 +1,19 @@
 import { Store } from "https://cdn.depjs.com/store/mod.ts";
 
-const initialize = async () => {
-  const db = new Store({ name: "default.json", path: "./journals" });
+const init = async () => {
+  const default_journal = new Store({ name: "default.json", path: "./journals" });
 
-  if (!(await db.has("entries"))) await db.set("entries", []);
-  if (!(await db.has("tags"))) await db.set("tags", []);
-  if (!(await db.has("view_mode"))) await db.set("view_mode", "tree");
+  if (!(await default_journal.has("entries")))
+    await default_journal.set("entries", []);
 
-  return db;
+  if (!(await default_journal.has("tags")))
+    await default_journal.set("tags", []);
+
+  if (!(await default_journal.has("view_mode")))
+    await default_journal.set("view_mode", "tree");
+
+  return default_journal;
 };
 
-const db = await initialize();
+const db = await init();
 export default db;
