@@ -6,22 +6,25 @@ let flags = parse(Deno.args),
 
 input = {
   display: {
-    today: flags.today,
+    today: flags.today || flags.now,
     all: flags.a || flags.all,
     tags: flags.tags,
-    view: flags.v || flags.view
+    view: flags.v || flags.view,
   },
   modify: {
     _write: {
       write: flags.w || flags.write,
       sub: {
-        on: flags.on,
-        at: flags.at,
+        on: flags.on || flags.o,
+        at: flags.at || flags.a,
         args,
       },
     },
     _edit: {
       edit: flags.e || flags.edit,
+      sub: {
+        recent: flags.recent
+      },
       args,
     },
     _remove: {
@@ -41,7 +44,7 @@ input = {
   find: {
     by_text: flags.s || flags.search,
     by_tag: flags.t || flags.tag,
-    by_date: flags.d || flags.date,
+    by_date: flags.d || flags.date || flags.o || flags.on,
     by_period: {
       from: flags.f || flags.from,
       until: flags.u || flags.until,
