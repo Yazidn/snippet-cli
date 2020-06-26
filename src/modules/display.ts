@@ -5,25 +5,6 @@ import { moment } from "https://deno.land/x/moment/moment.ts";
 import { created_format } from "./date_time_formats.ts";
 import input from "./user_input.ts";
 
-async function today() {
-  let search_results: any[] = [];
-
-  const store = await db.get("entries");
-  search_results = store.filter((e: any) => {
-    if (moment(e.created, created_format).isSame(moment(), "day")) return e;
-  });
-  render(search_results, "Today");
-}
-
-async function all() {
-  const entries = await db.get("entries");
-  if (await db.has("entries")) render(await db.get("entries"), "All");
-}
-
-async function tags() {
-  render(await db.get("tags"), "Tags", true);
-}
-
 async function render(output: any, context?: string, tags?: boolean) {
   if (output.length === 0) {
     console.log(`Nothing to display for ${context || ""}`);
@@ -34,11 +15,13 @@ async function render(output: any, context?: string, tags?: boolean) {
 
       if (input.display.view) display_mode = input.display.view;
       else if (
-        ["mini", "compact", "full", "table", "tree"].includes(default_view_mode)
+        ["mini", "compact", "full", "table", "tree"]
+        .includes(default_view_mode)
       )
         display_mode = default_view_mode;
 
       console.log(`\n| Displaying: ${context || ""}  as "${display_mode}"\n`);
+      
       switch (display_mode) {
         case "mini":
           console.log(table(output, ["text"]));
@@ -72,6 +55,26 @@ async function render(output: any, context?: string, tags?: boolean) {
       console.log(jsonTree(output, true));
     }
   }
+}
+
+
+async function today() {
+  let search_results: any[] = [];
+
+  const store = await db.get("entries");
+  search_results = store.filter((e: any) => {
+    if (moment(e.created, created_format).isSame(moment(), "day")) return e;
+  });
+  render(search_results, "Today");
+}
+
+async function all() {
+  const entries = await db.get("entries");
+  if (await db.has("entries")) render(await db.get("entries"), "All");
+}
+
+async function tags() {
+  render(await db.get("tags"), "Tags", true);
 }
 
 const _display = {
