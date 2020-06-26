@@ -3,6 +3,7 @@ import h_help from "./help.ts";
 
 async function reset() {
   await db.clear();
+  await Deno.remove("./journals", { recursive: true });
   console.log("Starting from scratch..!");
 }
 

@@ -7,21 +7,6 @@ import extras from "./modules/extras.ts";
 import input from "./modules/user_input.ts";
 
 switch (true) {
-  case Boolean(input.display.all): {
-    display.all();
-    break;
-  }
-
-  case Boolean(input.display.today): {
-    display.today();
-    break;
-  }
-
-  case Boolean(input.display.tags): {
-    display.tags();
-    break;
-  }
-
   case Boolean(input.find.by_text): {
     display.render(await find.by_text(input.find.by_text), input.find.by_text);
     break;
@@ -56,7 +41,7 @@ switch (true) {
     break;
   }
 
-  case Boolean(input.modify._write.write): {
+  case Boolean(input.modify._write.write || input.modify._write.sub.args.length): {
     modify.write(input.modify._write.write, input.modify._write.sub);
     break;
   }
@@ -68,6 +53,21 @@ switch (true) {
 
   case Boolean(input.modify._remove.remove): {
     remove(input.modify._remove.remove, input.modify._remove.sub);
+    break;
+  }
+
+  case Boolean(input.display.all): {
+    display.all();
+    break;
+  }
+
+  case Boolean(input.display.today): {
+    display.today();
+    break;
+  }
+
+  case Boolean(input.display.tags): {
+    display.tags();
     break;
   }
 
