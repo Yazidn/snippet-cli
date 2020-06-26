@@ -81,6 +81,11 @@ switch (true) {
     break;
   }
 
+  case Boolean(input.import_export.export_text): {
+    import_export.export_entries_text(input.import_export.export_text);
+    break;
+  }
+
   case Boolean(input.import_export.export_json): {
     import_export.export_entries_json(input.import_export.export_json);
     break;

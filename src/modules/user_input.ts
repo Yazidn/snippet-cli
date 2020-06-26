@@ -54,6 +54,7 @@ input = {
   import_export: {
     import: flags.i || flags.import,
     export_markdown: flags.m || flags.markdown,
+    export_text: flags.text,
     export_json: flags.j || flags.json,
   },
   extras: {
