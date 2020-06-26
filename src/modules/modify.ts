@@ -67,12 +67,7 @@ async function edit(flag: any, subflags: any) {
           (e: any, index: number) => index !== 0
         );
 
-        const updated_store = [entry, ...semi_updated_store];
-        await db.set("entries", []); // Temporary
-        await db.set("entries", updated_store);
-
-        const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-        display.render(await find.is_same(date), date);
+        after_edit(entry, semi_updated_store);
       } else console.log("Didn't find any recent entries.");
       break;
     }
@@ -83,15 +78,19 @@ async function edit(flag: any, subflags: any) {
         entry.text = args[0];
         const semi_updated_store = store.filter((e: any) => e.id !== flag);
 
-        const updated_store = [entry, ...semi_updated_store];
-        await db.set("entries", []); // Temporary
-        await db.set("entries", updated_store);
-
-        const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-        display.render(await find.is_same(date), date);
+        after_edit(entry, semi_updated_store);
       } else console.log("Specified ID is incorrect.");
     }
   }
+}
+
+async function after_edit(entry: any, semi_updated_store: any) {
+  const updated_store = [entry, ...semi_updated_store];
+  await db.set("entries", []); // Temporary
+  await db.set("entries", updated_store);
+
+  const date = moment(entry.created, created_format).format("YYYY-MM-DD");
+  display.render(await find.is_same(date), date);
 }
 
 const _write = {
