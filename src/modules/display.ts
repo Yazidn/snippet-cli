@@ -3,20 +3,7 @@ import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from "https://deno.land/x/minitable@v1.0/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import { created_format } from "./date_time_formats.ts";
-
-import { parse } from "https://deno.land/std/flags/mod.ts";
-const flags = parse(Deno.args);
-
-function init() {
-  if (Object.keys(flags).length !== 1) display_entries_default();
-  else console.log("Use -h or --help to get started.");
-  if (flags.tags) display_all_tags();
-}
-
-async function display_entries_default() {
-  if (flags.a || flags.all) display_all_entries();
-  else if (flags.today) display_today_entries();
-}
+import input from "./user_input.ts";
 
 async function display_today_entries() {
   let search_results: any[] = [];
@@ -45,8 +32,8 @@ async function display(output: any, context?: string, tags?: boolean) {
       const default_view_mode = await db.get("view_mode");
       let display_mode = "tree";
 
-      if (flags.v) {
-        display_mode = flags.v;
+      if (input.display.view) {
+        display_mode = input.display.view;
       } else if (
         ["mini", "compact", "full", "table", "tree"].includes(default_view_mode)
       ) {
@@ -55,17 +42,17 @@ async function display(output: any, context?: string, tags?: boolean) {
 
       console.log(`\n| Displaying: ${context || ""}  as "${display_mode}"\n`);
 
-      switch(display_mode) {
-        case 'mini':
+      switch (display_mode) {
+        case "mini":
           console.log(table(output, ["text"]));
           break;
-        case 'compact':
+        case "compact":
           console.log(table(output, ["text", "created"]));
           break;
-        case 'full':
+        case "full":
           console.log(table(output, ["text", "created", "id"]));
           break;
-        case 'table':
+        case "table":
           console.table(output);
           break;
         default: {
@@ -86,4 +73,9 @@ async function display(output: any, context?: string, tags?: boolean) {
   }
 }
 
-export { display, init, display_today_entries };
+export {
+  display,
+  display_all_entries,
+  display_today_entries,
+  display_all_tags,
+};

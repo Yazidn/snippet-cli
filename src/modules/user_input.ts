@@ -5,6 +5,12 @@ let flags = parse(Deno.args),
   input: any;
 
 input = {
+  display: {
+    today: flags.today,
+    all: flags.a || flags.all,
+    tags: flags.tags,
+    view: flags.v || flags.view
+  },
   modify: {
     _write: {
       write: flags.w || flags.write,

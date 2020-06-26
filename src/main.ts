@@ -1,17 +1,36 @@
 import find from "./modules/find.ts";
 import modify from "./modules/modify.ts";
-import { display, init } from "./modules/display.ts";
+import {
+  display,
+  display_all_entries,
+  display_today_entries,
+  display_all_tags,
+} from "./modules/display.ts";
 import { remove } from "./modules/remove.ts";
 import import_export from "./modules/import_export.ts";
 import extras from "./modules/extras.ts";
-import input from './modules/user_input.ts';
+import input from "./modules/user_input.ts";
 
-//   Display
-init();
-
-// Find
 switch (true) {
-  // By Text
+  // Display: All
+  case Boolean(input.display.all): {
+    display_all_entries();
+    break;
+  }
+
+  // Today
+  case Boolean(input.display.today): {
+    display_today_entries();
+    break;
+  }
+
+  // Tags
+  case Boolean(input.display.tags): {
+    display_all_tags();
+    break;
+  }
+
+  // Find: By Text
   case Boolean(input.find.by_text): {
     display(await find.by_text(input.find.by_text), input.find.by_text);
     break;
@@ -46,11 +65,8 @@ switch (true) {
     );
     break;
   }
-}
 
-// Modify
-switch (true) {
-  // Write
+  // Modify: Write
   case Boolean(input.modify._write.write): {
     modify.write(input.modify._write.write, input.modify._write.sub);
     break;
@@ -67,11 +83,7 @@ switch (true) {
     remove(input.modify._remove.remove, input.modify._remove.sub);
     break;
   }
-}
 
-// Import & Export
-switch (true) {
-  
   // Import
   case Boolean(input.import_export.import): {
     import_export.import_entries(input.import_export.import);
@@ -89,11 +101,7 @@ switch (true) {
     import_export.export_entries_json(input.import_export.export_json);
     break;
   }
-}
 
-// Extras
-switch (true) {
-  // Set Default View
   case Boolean(input.extras.set_default_view): {
     extras.set_view_mode(input.extras.set_default_view);
     break;
@@ -108,6 +116,12 @@ switch (true) {
   // Help
   case Boolean(input.extras.help): {
     extras.help();
+    break;
+  }
+
+  // Default
+  default: {
+    console.log("Use -h or --help to get started.");
     break;
   }
 }
