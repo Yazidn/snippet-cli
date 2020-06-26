@@ -7,7 +7,7 @@ import { created_format } from "./date_time_formats.ts";
 import { parse } from "https://deno.land/std/flags/mod.ts";
 const flags = parse(Deno.args);
 
-function init_display() {
+function init() {
   if (Object.keys(flags).length !== 1) display_entries_default();
   else console.log("Use -h or --help to get started.");
   if (flags.tags) display_all_tags();
@@ -82,4 +82,4 @@ async function display(output: any, context?: string, tags?: boolean) {
   }
 }
 
-export { display, init_display, display_today_entries };
+export { display, init, display_today_entries };
