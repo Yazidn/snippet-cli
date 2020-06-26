@@ -32,29 +32,30 @@ async function render(output: any, context?: string, tags?: boolean) {
       const default_view_mode = await db.get("view_mode");
       let display_mode = "tree";
 
-      if (input.display.view) {
-        display_mode = input.display.view;
-      } else if (
+      if (input.display.view) display_mode = input.display.view;
+      else if (
         ["mini", "compact", "full", "table", "tree"].includes(default_view_mode)
-      ) {
+      )
         display_mode = default_view_mode;
-      }
 
       console.log(`\n| Displaying: ${context || ""}  as "${display_mode}"\n`);
-
       switch (display_mode) {
         case "mini":
           console.log(table(output, ["text"]));
           break;
+
         case "compact":
           console.log(table(output, ["text", "created"]));
           break;
+
         case "full":
           console.log(table(output, ["text", "created", "id"]));
           break;
+
         case "table":
           console.table(output);
           break;
+
         default: {
           const formatted_output = output.map((e: any) => {
             return {
@@ -74,7 +75,10 @@ async function render(output: any, context?: string, tags?: boolean) {
 }
 
 const _display = {
-  render, all, today, tags
-}
+  render,
+  all,
+  today,
+  tags,
+};
 
 export default _display;

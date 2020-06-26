@@ -7,43 +7,36 @@ import extras from "./modules/extras.ts";
 import input from "./modules/user_input.ts";
 
 switch (true) {
-  // Display: All
   case Boolean(input.display.all): {
     display.all();
     break;
   }
 
-  // Today
   case Boolean(input.display.today): {
     display.today();
     break;
   }
 
-  // Tags
   case Boolean(input.display.tags): {
     display.tags();
     break;
   }
 
-  // Find: By Text
   case Boolean(input.find.by_text): {
     display.render(await find.by_text(input.find.by_text), input.find.by_text);
     break;
   }
 
-  // By Tag
   case Boolean(input.find.by_tag): {
     display.render(await find.by_tag(input.find.by_tag), input.find.by_tag);
     break;
   }
 
-  // By Date
   case Boolean(input.find.by_date): {
     display.render(await find.is_same(input.find.by_date), input.find.by_date);
     break;
   }
 
-  // By "Last" Command
   case Boolean(input.find.by_command): {
     display.render(
       await find.last(input.find.by_command),
@@ -52,7 +45,6 @@ switch (true) {
     break;
   }
 
-  // By Time Period
   case Boolean(input.find.by_period.from && input.find.by_period.until): {
     display.render(
       await find.is_between([
@@ -64,37 +56,31 @@ switch (true) {
     break;
   }
 
-  // Modify: Write
   case Boolean(input.modify._write.write): {
     modify.write(input.modify._write.write, input.modify._write.sub);
     break;
   }
 
-  // Edit
   case Boolean(input.modify.edit): {
     modify.edit(input.modify._edit.edit, input.modify._edit.args);
     break;
   }
 
-  // Remove
   case Boolean(input.modify._remove.remove): {
     remove(input.modify._remove.remove, input.modify._remove.sub);
     break;
   }
 
-  // Import
   case Boolean(input.import_export.import): {
     import_export.import_entries(input.import_export.import);
     break;
   }
 
-  // Export Markdown
   case Boolean(input.import_export.export_markdown): {
     import_export.export_entries_md(input.import_export.export_markdown);
     break;
   }
 
-  // Export JSON
   case Boolean(input.import_export.export_json): {
     import_export.export_entries_json(input.import_export.export_json);
     break;
@@ -105,19 +91,16 @@ switch (true) {
     break;
   }
 
-  // Reset
   case Boolean(input.extras.clear): {
     extras.reset();
     break;
   }
 
-  // Help
   case Boolean(input.extras.help): {
     extras.help();
     break;
   }
 
-  // Default
   default: {
     console.log("Use -h or --help to get started.");
     break;
