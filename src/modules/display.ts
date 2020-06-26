@@ -53,11 +53,7 @@ async function display(output: any, context?: string, tags?: boolean) {
         display_mode = default_view_mode;
       }
 
-      console.log(`
-
-  | Displaying: ${context || ""}  as "${display_mode}"
-  
-      `);
+      console.log(`\n| Displaying: ${context || ""}  as "${display_mode}"\n`);
 
       if (display_mode === "mini") console.log(table(output, ["text"]));
       else if (display_mode === "compact")
