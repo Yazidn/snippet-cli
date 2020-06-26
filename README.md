@@ -1,3 +1,5 @@
+### For latest code, check out the [unstable](https://github.com/Yazidn/snippet-cli/tree/unstable) branch.
+
 # snippet-cli
 An entry based journaling application for your console/terminal built in [Deno](https://deno.land).
 
