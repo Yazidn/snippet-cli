@@ -1,5 +1,5 @@
-import search from "./modules/find.ts";
-import write from "./modules/modify.ts";
+import find from "./modules/find.ts";
+import modify from "./modules/modify.ts";
 import { display, init_display } from "./modules/display.ts";
 import { remove } from "./modules/remove.ts";
 import import_export from "./modules/import_export.ts";
@@ -13,32 +13,32 @@ init_display();
 switch (true) {
   // By Text
   case Boolean(_f.find.by_text): {
-    display(await search.by_text(_f.find.by_text), _f.find.by_text);
+    display(await find.by_text(_f.find.by_text), _f.find.by_text);
     break;
   }
 
   // By Tag
   case Boolean(_f.find.by_tag): {
-    display(await search.by_tag(_f.find.by_tag), _f.find.by_tag);
+    display(await find.by_tag(_f.find.by_tag), _f.find.by_tag);
     break;
   }
 
   // By Date
   case Boolean(_f.find.by_date): {
-    display(await search.is_same(_f.find.by_date), _f.find.by_date);
+    display(await find.is_same(_f.find.by_date), _f.find.by_date);
     break;
   }
 
   // By "Last" Command
   case Boolean(_f.find.by_command): {
-    display(await search.last(_f.find.by_command), _f.find.by_command);
+    display(await find.last(_f.find.by_command), _f.find.by_command);
     break;
   }
 
   // By Time Period
   case Boolean(_f.find.by_period.from && _f.find.by_period.until): {
     display(
-      await search.is_between([
+      await find.is_between([
         _f.find.by_period.from,
         _f.find.by_period.until,
       ]),
@@ -52,13 +52,13 @@ switch (true) {
 switch (true) {
   // Write
   case Boolean(_f.modify._write.write): {
-    write.write_entry(_f.modify._write.write, _f.modify._write.sub);
+    modify.write(_f.modify._write.write, _f.modify._write.sub);
     break;
   }
 
   // Edit
   case Boolean(_f.modify.edit): {
-    write.edit_entry(_f.modify._edit.edit, _f.modify._edit.args);
+    modify.edit(_f.modify._edit.edit, _f.modify._edit.args);
     break;
   }
 

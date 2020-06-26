@@ -7,10 +7,10 @@ import {
 } from "./date_time_formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import { display } from "./display.ts";
-import search from "./find.ts";
+import find from "./find.ts";
 import regex from "./regular_expressions.ts";
 
-async function write_entry(flag: any, subflags: any) {
+async function write(flag: any, subflags: any) {
   let tags: any[] = [];
   let is_tag: any;
 
@@ -51,10 +51,10 @@ async function write_entry(flag: any, subflags: any) {
     await db.set("tags", updated_tags_store);
   }
 
-  display(await search.is_same(date), date);
+  display(await find.is_same(date), date);
 }
 
-async function edit_entry(flag: any, args: any) {
+async function edit(flag: any, args: any) {
   const store = await db.get("entries");
   const entry = store.find((e: any) => e.id === flag);
   if (entry) {
@@ -66,13 +66,12 @@ async function edit_entry(flag: any, args: any) {
     await db.set("entries", updated_store);
 
     const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-    display(await search.is_same(date), date);
+    display(await find.is_same(date), date);
   } else console.log("Specified ID is incorrect.");
 }
 
 const _write = {
-  write_entry,
-  edit_entry,
+  write, edit
 };
 
 export default _write;

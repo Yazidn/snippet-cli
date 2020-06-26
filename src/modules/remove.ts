@@ -1,5 +1,5 @@
 import db from "./storage.ts";
-import search from "./find.ts";
+import find from "./find.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import { created_format } from "./date_time_formats.ts";
 import { display } from "./display.ts";
@@ -46,7 +46,7 @@ async function remove(flag: any, subflags: any) {
         await db.set("entries", updated_store);
 
         const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-        display(await search.is_same(date), date);
+        display(await find.is_same(date), date);
       } else console.log("Specified ID is incorrect.");
       break;
     }
@@ -56,25 +56,25 @@ async function remove(flag: any, subflags: any) {
   switch (true) {
     // Today
     case Boolean(today): {
-      by(await search.is_same(moment()));
+      by(await find.is_same(moment()));
       break;
     }
 
     // By "Last" Command
     case Boolean(last): {
-      by(await search.last(last));
+      by(await find.last(last));
       break;
     }
 
     // By Date
     case Boolean(date): {
-      by(await search.is_same(date));
+      by(await find.is_same(date));
       break;
     }
 
     // By Time Period
     case Boolean(between[0] && between[1]): {
-      by(await search.is_between(between));
+      by(await find.is_between(between));
       break;
     }
   }
