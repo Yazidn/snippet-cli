@@ -1,8 +1,8 @@
-import db from "./database.ts";
+import db from "./storage.ts";
 import { jsonTree } from "https://deno.land/x/json_tree/mod.ts";
 import { table } from "https://deno.land/x/minitable@v1.0/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import { created_format } from "./formats.ts";
+import { created_format } from "./date_time_formats.ts";
 
 import { parse } from "https://deno.land/std/flags/mod.ts";
 const flags = parse(Deno.args);
@@ -25,35 +25,37 @@ async function display_today_entries() {
   search_results = store.filter((e: any) => {
     if (moment(e.created, created_format).isSame(moment(), "day")) return e;
   });
-  display(search_results, 'Today');
+  display(search_results, "Today");
 }
 
 async function display_all_entries() {
   const entries = await db.get("entries");
-  if (await db.has("entries")) display(await db.get("entries"), 'All');
+  if (await db.has("entries")) display(await db.get("entries"), "All");
 }
 
 async function display_all_tags() {
-  display(await db.get("tags"),'Tags', true);
+  display(await db.get("tags"), "Tags", true);
 }
 
-async function display(output: any, context? :string, tags?: boolean) {
+async function display(output: any, context?: string, tags?: boolean) {
   if (output.length === 0) {
-    console.log(`Nothing to display for ${context || ''}`);
+    console.log(`Nothing to display for ${context || ""}`);
   } else {
     if (!tags) {
       const default_view_mode = await db.get("view_mode");
-      let display_mode = 'tree';
+      let display_mode = "tree";
 
       if (flags.v) {
         display_mode = flags.v;
-      } else if(['mini', 'compact', 'full', 'table', 'tree'].includes(default_view_mode)) {
-          display_mode = default_view_mode;
+      } else if (
+        ["mini", "compact", "full", "table", "tree"].includes(default_view_mode)
+      ) {
+        display_mode = default_view_mode;
       }
-      
+
       console.log(`
 
-  | Displaying: ${context || ''}  as "${display_mode}"
+  | Displaying: ${context || ""}  as "${display_mode}"
   
       `);
 
@@ -74,9 +76,9 @@ async function display(output: any, context? :string, tags?: boolean) {
         console.log(jsonTree(formatted_output, false));
       }
     } else {
-      console.log(`Displaying: ${context || ''}`);
+      console.log(`Displaying: ${context || ""}`);
       console.log(jsonTree(output, true));
-    } 
+    }
   }
 }
 

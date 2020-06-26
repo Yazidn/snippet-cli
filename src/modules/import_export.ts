@@ -1,4 +1,4 @@
-import db from "./database.ts";
+import db from "./storage.ts";
 import { Markdown, ListTypes } from "https://deno.land/x/deno_markdown/mod.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 

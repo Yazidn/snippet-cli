@@ -1,14 +1,14 @@
-import db from "./database.ts";
+import db from "./storage.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import {
   date_input_formats,
   time_input_formats,
   created_format,
-} from "./formats.ts";
+} from "./date_time_formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
 import { display } from "./display.ts";
-import search from "./search.ts";
-import regex from "./regex.ts";
+import search from "./find.ts";
+import regex from "./regular_expressions.ts";
 
 async function write_entry(flag: any, subflags: any) {
   let tags: any[] = [];

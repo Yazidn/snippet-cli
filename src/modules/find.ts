@@ -1,13 +1,13 @@
-import db from "./database.ts";
+import db from "./storage.ts";
 import {
   date_input_formats,
   created_format,
   is_day_formats,
   is_month_formats,
   is_year_formats,
-} from "./formats.ts";
+} from "./date_time_formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import regex from "./regex.ts";
+import regex from "./regular_expressions.ts";
 
 async function is_same(input: any) {
   const is_day = moment(input, is_day_formats, true).isValid();
@@ -92,14 +92,15 @@ async function last_by(number_of: number, what: string, flag?: any) {
   });
 }
 
-async function search_by_text(flag: any) {
+async function by_text(flag: any) {
   const store = await db.get("entries");
   return store.filter((e: any) => {
-    if (e.text.toLowerCase().search(String(flag).toLowerCase()) !== -1) return e;
+    if (e.text.toLowerCase().search(String(flag).toLowerCase()) !== -1)
+      return e;
   });
 }
 
-async function search_by_tag(flag: any) {
+async function by_tag(flag: any) {
   const store = await db.get("entries");
   return store.filter((e: any) => e.tags.includes(flag));
 }
@@ -108,8 +109,8 @@ const _search = {
   is_between,
   is_same,
   last,
-  search_by_tag,
-  search_by_text,
+  by_tag,
+  by_text,
 };
 
 export default _search;
