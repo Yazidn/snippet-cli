@@ -3510,11 +3510,11 @@ System.register(
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
   ["https://cdn.depjs.com/store@1.0.1/mod"],
   function (exports_16, context_16) {
     "use strict";
-    var mod_ts_3, initialize, db;
+    var mod_ts_3, init, db;
     var __moduleName = context_16 && context_16.id;
     return {
       setters: [
@@ -3523,27 +3523,29 @@ System.register(
         },
       ],
       execute: async function () {
-        initialize = async () => {
-          const db = new mod_ts_3.Store({ name: "snpt.json", path: "./db" });
-          if (!(await db.has("entries"))) {
-            await db.set("entries", []);
+        init = async () => {
+          const default_journal = new mod_ts_3.Store(
+            { name: "default.json", path: "./journals" },
+          );
+          if (!(await default_journal.has("entries"))) {
+            await default_journal.set("entries", []);
           }
-          if (!(await db.has("tags"))) {
-            await db.set("tags", []);
+          if (!(await default_journal.has("tags"))) {
+            await default_journal.set("tags", []);
           }
-          if (!(await db.has("view_mode"))) {
-            await db.set("view_mode", "tree");
+          if (!(await default_journal.has("view_mode"))) {
+            await default_journal.set("view_mode", "tree");
           }
-          return db;
+          return default_journal;
         };
-        db = await initialize();
+        db = await init();
         exports_16("default", db);
       },
     };
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
   [],
   function (exports_17, context_17) {
     "use strict";
@@ -7891,7 +7893,7 @@ System.register(
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/regular_expressions",
   [],
   function (exports_19, context_19) {
     "use strict";
@@ -7912,31 +7914,35 @@ System.register(
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/find",
   [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
     "https://deno.land/x/moment/moment",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/regular_expressions",
   ],
   function (exports_20, context_20) {
     "use strict";
-    var database_ts_1, formats_ts_1, moment_ts_1, regex_ts_1, _search;
+    var storage_ts_1,
+      date_time_formats_ts_1,
+      moment_ts_1,
+      regular_expressions_ts_1,
+      _search;
     var __moduleName = context_20 && context_20.id;
     async function is_same(input) {
       const is_day = moment_ts_1.moment(
         input,
-        formats_ts_1.is_day_formats,
+        date_time_formats_ts_1.is_day_formats,
         true,
       ).isValid();
       const is_month = moment_ts_1.moment(
         input,
-        formats_ts_1.is_month_formats,
+        date_time_formats_ts_1.is_month_formats,
         true,
       ).isValid();
       const is_year = moment_ts_1.moment(
         input,
-        formats_ts_1.is_year_formats,
+        date_time_formats_ts_1.is_year_formats,
         true,
       ).isValid();
       if (is_day) {
@@ -7950,15 +7956,13 @@ System.register(
     async function is_same_by(input, property) {
       const input_to_moment = moment_ts_1.moment(
         input,
-        formats_ts_1.date_input_formats,
+        date_time_formats_ts_1.date_input_formats,
       );
-      const store = await database_ts_1.default.get("entries");
+      const store = await storage_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, formats_ts_1.created_format).isSame(
-            input_to_moment,
-            property,
-          )
+          moment_ts_1.moment(e.created, date_time_formats_ts_1.created_format)
+            .isSame(input_to_moment, property)
         ) {
           return e;
         }
@@ -7966,20 +7970,38 @@ System.register(
     }
     async function is_between(input) {
       const is_day =
-        moment_ts_1.moment(input[0], formats_ts_1.is_day_formats, true)
-          .isValid() &&
-        moment_ts_1.moment(input[1], formats_ts_1.is_day_formats, true)
-          .isValid();
+        moment_ts_1.moment(
+          input[0],
+          date_time_formats_ts_1.is_day_formats,
+          true,
+        ).isValid() &&
+        moment_ts_1.moment(
+          input[1],
+          date_time_formats_ts_1.is_day_formats,
+          true,
+        ).isValid();
       const is_month =
-        moment_ts_1.moment(input[0], formats_ts_1.is_month_formats, true)
-          .isValid() &&
-        moment_ts_1.moment(input[1], formats_ts_1.is_month_formats, true)
-          .isValid();
+        moment_ts_1.moment(
+          input[0],
+          date_time_formats_ts_1.is_month_formats,
+          true,
+        ).isValid() &&
+        moment_ts_1.moment(
+          input[1],
+          date_time_formats_ts_1.is_month_formats,
+          true,
+        ).isValid();
       const is_year =
-        moment_ts_1.moment(input[0], formats_ts_1.is_year_formats, true)
-          .isValid() &&
-        moment_ts_1.moment(input[1], formats_ts_1.is_year_formats, true)
-          .isValid();
+        moment_ts_1.moment(
+          input[0],
+          date_time_formats_ts_1.is_year_formats,
+          true,
+        ).isValid() &&
+        moment_ts_1.moment(
+          input[1],
+          date_time_formats_ts_1.is_year_formats,
+          true,
+        ).isValid();
       if (is_day) {
         return await is_between_by(input, "day");
       } else if (is_month) {
@@ -7991,29 +8013,26 @@ System.register(
     async function is_between_by(input, property) {
       const first_moment = moment_ts_1.moment(
         input[0],
-        formats_ts_1.date_input_formats,
+        date_time_formats_ts_1.date_input_formats,
       );
       const second_moment = moment_ts_1.moment(
         input[1],
-        formats_ts_1.date_input_formats,
+        date_time_formats_ts_1.date_input_formats,
       );
-      const store = await database_ts_1.default.get("entries");
+      const store = await storage_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, formats_ts_1.created_format).isBetween(
-            first_moment,
-            second_moment,
-            property,
-            "[]",
-          )
+          moment_ts_1.moment(e.created, date_time_formats_ts_1.created_format)
+            .isBetween(first_moment, second_moment, property, "[]")
         ) {
           return e;
         }
       });
     }
     async function last(flag) {
-      const is_day_of_week = regex_ts_1.default.rx_day_of_week.exec(flag);
-      const is_command = regex_ts_1.default.rx_command.exec(flag);
+      const is_day_of_week = regular_expressions_ts_1.default.rx_day_of_week
+        .exec(flag);
+      const is_command = regular_expressions_ts_1.default.rx_command.exec(flag);
       return await last_by(
         is_day_of_week ? 7 : is_command ? parseInt(is_command[1]) || 1 : 1,
         is_day_of_week ? "day" : is_command ? is_command[2] : flag,
@@ -8021,44 +8040,45 @@ System.register(
       );
     }
     async function last_by(number_of, what, flag) {
-      const store = await database_ts_1.default.get("entries");
+      const store = await storage_ts_1.default.get("entries");
       return store.filter((e) => {
         if (
-          moment_ts_1.moment(e.created, formats_ts_1.created_format).isSame(
-            moment_ts_1.moment(flag || [], flag ? ["dddd", "ddd"] : null)
-              .subtract(number_of, `${what}s`),
-            what,
-          )
+          moment_ts_1.moment(e.created, date_time_formats_ts_1.created_format)
+            .isSame(
+              moment_ts_1.moment(flag || [], flag ? ["dddd", "ddd"] : null)
+                .subtract(number_of, `${what}s`),
+              what,
+            )
         ) {
           return e;
         }
       });
     }
-    async function search_by_text(flag) {
-      const store = await database_ts_1.default.get("entries");
+    async function by_text(flag) {
+      const store = await storage_ts_1.default.get("entries");
       return store.filter((e) => {
         if (e.text.toLowerCase().search(String(flag).toLowerCase()) !== -1) {
           return e;
         }
       });
     }
-    async function search_by_tag(flag) {
-      const store = await database_ts_1.default.get("entries");
+    async function by_tag(flag) {
+      const store = await storage_ts_1.default.get("entries");
       return store.filter((e) => e.tags.includes(flag));
     }
     return {
       setters: [
-        function (database_ts_1_1) {
-          database_ts_1 = database_ts_1_1;
+        function (storage_ts_1_1) {
+          storage_ts_1 = storage_ts_1_1;
         },
-        function (formats_ts_1_1) {
-          formats_ts_1 = formats_ts_1_1;
+        function (date_time_formats_ts_1_1) {
+          date_time_formats_ts_1 = date_time_formats_ts_1_1;
         },
         function (moment_ts_1_1) {
           moment_ts_1 = moment_ts_1_1;
         },
-        function (regex_ts_1_1) {
-          regex_ts_1 = regex_ts_1_1;
+        function (regular_expressions_ts_1_1) {
+          regular_expressions_ts_1 = regular_expressions_ts_1_1;
         },
       ],
       execute: function () {
@@ -8066,8 +8086,8 @@ System.register(
           is_between,
           is_same,
           last,
-          search_by_tag,
-          search_by_text,
+          by_tag,
+          by_text,
         };
         exports_20("default", _search);
       },
@@ -9845,287 +9865,318 @@ System.register(
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/display",
-  [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
-    "https://deno.land/x/json_tree/mod",
-    "https://deno.land/x/minitable@v1.0/mod",
-    "https://deno.land/x/moment/moment",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
-    "https://deno.land/std/flags/mod",
-  ],
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/user_input",
+  ["https://deno.land/std/flags/mod"],
   function (exports_36, context_36) {
     "use strict";
-    var database_ts_2,
-      mod_ts_4,
-      mod_ts_5,
-      moment_ts_2,
-      formats_ts_2,
-      mod_ts_6,
-      flags;
+    var mod_ts_4, flags, args, input;
     var __moduleName = context_36 && context_36.id;
-    function init_display() {
-      if (Object.keys(flags).length !== 1) {
-        display_entries_default();
-      } else {
-        console.log("Use -h or --help to get started.");
-      }
-      if (flags.tags) {
-        display_all_tags();
-      }
-    }
-    exports_36("init_display", init_display);
-    async function display_entries_default() {
-      if (flags.a || flags.all) {
-        display_all_entries();
-      } else if (flags.today) {
-        display_today_entries();
-      }
-    }
-    async function display_today_entries() {
-      let search_results = [];
-      const store = await database_ts_2.default.get("entries");
-      search_results = store.filter((e) => {
-        if (
-          moment_ts_2.moment(e.created, formats_ts_2.created_format).isSame(
-            moment_ts_2.moment(),
-            "day",
-          )
-        ) {
-          return e;
-        }
-      });
-      display(search_results, "Today");
-    }
-    exports_36("display_today_entries", display_today_entries);
-    async function display_all_entries() {
-      const entries = await database_ts_2.default.get("entries");
-      if (await database_ts_2.default.has("entries")) {
-        display(await database_ts_2.default.get("entries"), "All");
-      }
-    }
-    async function display_all_tags() {
-      display(await database_ts_2.default.get("tags"), "Tags", true);
-    }
-    async function display(output, context, tags) {
-      if (output.length === 0) {
-        console.log(`Nothing to display for ${context || ""}`);
-      } else {
-        if (!tags) {
-          const default_view_mode = await database_ts_2.default.get(
-            "view_mode",
-          );
-          let display_mode = "tree";
-          if (flags.v) {
-            display_mode = flags.v;
-          } else if (
-            ["mini", "compact", "full", "table", "tree"].includes(
-              default_view_mode,
-            )
-          ) {
-            display_mode = default_view_mode;
-          }
-          console.log(`
-
-  | Displaying: ${context || ""}  as "${display_mode}"
-  
-      `);
-          if (display_mode === "mini") {
-            console.log(mod_ts_5.table(output, ["text"]));
-          } else if (display_mode === "compact") {
-            console.log(mod_ts_5.table(output, ["text", "created"]));
-          } else if (display_mode === "full") {
-            console.log(mod_ts_5.table(output, ["text", "created", "id"]));
-          } else if (display_mode === "table") {
-            console.table(output);
-          } else {
-            const formatted_output = output.map((e) => {
-              return {
-                [e.text]: e.text,
-                [e.created]: e.created,
-                [`ID: ${e.id}`]: e.id,
-              };
-            });
-            console.log(mod_ts_4.jsonTree(formatted_output, false));
-          }
-        } else {
-          console.log(`Displaying: ${context || ""}`);
-          console.log(mod_ts_4.jsonTree(output, true));
-        }
-      }
-    }
-    exports_36("display", display);
     return {
       setters: [
-        function (database_ts_2_1) {
-          database_ts_2 = database_ts_2_1;
-        },
         function (mod_ts_4_1) {
           mod_ts_4 = mod_ts_4_1;
         },
-        function (mod_ts_5_1) {
-          mod_ts_5 = mod_ts_5_1;
-        },
-        function (moment_ts_2_1) {
-          moment_ts_2 = moment_ts_2_1;
-        },
-        function (formats_ts_2_1) {
-          formats_ts_2 = formats_ts_2_1;
-        },
-        function (mod_ts_6_1) {
-          mod_ts_6 = mod_ts_6_1;
-        },
       ],
       execute: function () {
-        flags = mod_ts_6.parse(Deno.args);
+        flags = mod_ts_4.parse(Deno.args), args = flags._;
+        input = {
+          display: {
+            today: flags.today || flags.now,
+            all: flags.a || flags.all,
+            tags: flags.tags,
+            view: flags.v || flags.view,
+          },
+          modify: {
+            _write: {
+              write: flags.w || flags.write,
+              sub: {
+                on: flags.on || flags.o,
+                at: flags.at || flags.a,
+                args,
+              },
+            },
+            _edit: {
+              edit: flags.e || flags.edit,
+              sub: {
+                recent: flags.recent,
+                args,
+              },
+            },
+            _remove: {
+              remove: flags.r || flags.remove,
+              sub: {
+                today: flags.today,
+                last: flags.l || flags.last,
+                date: flags.d || flags.date,
+                between: [flags.f || flags.from, flags.u || flags.until],
+                all: flags.a || flags.all,
+                recent: flags.recent,
+                tag: flags.t || flags.tag,
+                args,
+              },
+            },
+          },
+          find: {
+            by_text: flags.s || flags.search,
+            by_tag: flags.t || flags.tag,
+            by_date: flags.d || flags.date || flags.o || flags.on,
+            by_period: {
+              from: flags.f || flags.from,
+              until: flags.u || flags.until,
+            },
+            by_command: flags.l || flags.last,
+          },
+          import_export: {
+            import: flags.i || flags.import,
+            export_markdown: flags.m || flags.markdown,
+            export_text: flags.text,
+            export_json: flags.j || flags.json,
+          },
+          extras: {
+            set_default_view: flags.setview,
+            help: flags.h || flags.help,
+            clear: flags.c || flags.clear,
+          },
+        };
+        exports_36("default", input);
       },
     };
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/write",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
   [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
-    "https://deno.land/std/uuid/mod",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/formats",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "https://deno.land/x/json_tree/mod",
+    "https://deno.land/x/minitable@v1.0/mod",
     "https://deno.land/x/moment/moment",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/display",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/regex",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/user_input",
   ],
   function (exports_37, context_37) {
     "use strict";
-    var database_ts_3,
+    var storage_ts_2,
+      mod_ts_5,
+      mod_ts_6,
+      moment_ts_2,
+      date_time_formats_ts_2,
+      user_input_ts_1,
+      _display;
+    var __moduleName = context_37 && context_37.id;
+    async function render(output, context, tags) {
+      if (output.length === 0) {
+        console.log(`Nothing to display for ${context || ""}`);
+      } else {
+        if (!tags) {
+          const default_view_mode = await storage_ts_2.default.get("view_mode");
+          let display_mode = "tree";
+          if (user_input_ts_1.default.display.view) {
+            display_mode = user_input_ts_1.default.display.view;
+          } else if (
+            ["mini", "compact", "full", "table", "tree"]
+              .includes(default_view_mode)
+          ) {
+            display_mode = default_view_mode;
+          }
+          console.log(
+            `\n| Displaying: ${context || ""}  as "${display_mode}"\n`,
+          );
+          switch (display_mode) {
+            case "mini":
+              console.log(mod_ts_6.table(output, ["text"]));
+              break;
+            case "compact":
+              console.log(mod_ts_6.table(output, ["text", "created"]));
+              break;
+            case "full":
+              console.log(mod_ts_6.table(output, ["text", "created", "id"]));
+              break;
+            case "table":
+              console.table(output);
+              break;
+            default: {
+              const formatted_output = output.map((e) => {
+                return {
+                  [e.text]: e.text,
+                  [e.created]: e.created,
+                  [`ID: ${e.id}`]: e.id,
+                };
+              });
+              console.log(mod_ts_5.jsonTree(formatted_output, false));
+            }
+          }
+        } else {
+          console.log(`Displaying: ${context || ""}`);
+          console.log(mod_ts_5.jsonTree(output, true));
+        }
+      }
+    }
+    async function today() {
+      let search_results = [];
+      const store = await storage_ts_2.default.get("entries");
+      search_results = store.filter((e) => {
+        if (
+          moment_ts_2.moment(e.created, date_time_formats_ts_2.created_format)
+            .isSame(moment_ts_2.moment(), "day")
+        ) {
+          return e;
+        }
+      });
+      render(search_results, "Today");
+    }
+    async function all() {
+      const entries = await storage_ts_2.default.get("entries");
+      if (await storage_ts_2.default.has("entries")) {
+        render(await storage_ts_2.default.get("entries"), "All");
+      }
+    }
+    async function tags() {
+      render(await storage_ts_2.default.get("tags"), "Tags", true);
+    }
+    return {
+      setters: [
+        function (storage_ts_2_1) {
+          storage_ts_2 = storage_ts_2_1;
+        },
+        function (mod_ts_5_1) {
+          mod_ts_5 = mod_ts_5_1;
+        },
+        function (mod_ts_6_1) {
+          mod_ts_6 = mod_ts_6_1;
+        },
+        function (moment_ts_2_1) {
+          moment_ts_2 = moment_ts_2_1;
+        },
+        function (date_time_formats_ts_2_1) {
+          date_time_formats_ts_2 = date_time_formats_ts_2_1;
+        },
+        function (user_input_ts_1_1) {
+          user_input_ts_1 = user_input_ts_1_1;
+        },
+      ],
+      execute: function () {
+        _display = {
+          render,
+          all,
+          today,
+          tags,
+        };
+        exports_37("default", _display);
+      },
+    };
+  },
+);
+System.register(
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/modify",
+  [
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "https://deno.land/std/uuid/mod",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
+    "https://deno.land/x/moment/moment",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/find",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/regular_expressions",
+  ],
+  function (exports_38, context_38) {
+    "use strict";
+    var storage_ts_3,
       mod_ts_7,
-      formats_ts_3,
+      date_time_formats_ts_3,
       moment_ts_3,
       display_ts_1,
-      search_ts_1,
-      regex_ts_2,
+      find_ts_1,
+      regular_expressions_ts_2,
       _write;
-    var __moduleName = context_37 && context_37.id;
-    async function write_entry(flag, subflags) {
+    var __moduleName = context_38 && context_38.id;
+    async function write(flag, subflags) {
       let tags = [];
       let is_tag;
       do {
-        is_tag = regex_ts_2.default.rx_tag.exec(flag);
+        is_tag = regular_expressions_ts_2.default.rx_tag.exec(flag);
         if (is_tag) {
           tags.push(is_tag[2]);
         }
       } while (is_tag);
       tags = [...new Set(tags)];
-      const store = await database_ts_3.default.get("entries");
+      const store = await storage_ts_3.default.get("entries");
       const on = subflags.on;
       const at = subflags.at;
       const write_moment = moment_ts_3.moment();
       const date = on
-        ? moment_ts_3.moment(on, formats_ts_3.date_input_formats).format(
-          "YYYY-MM-DD",
-        )
+        ? moment_ts_3.moment(on, date_time_formats_ts_3.date_input_formats)
+          .format("YYYY-MM-DD")
         : write_moment.format("YYYY-MM-DD");
       const time = at
-        ? moment_ts_3.moment(at, formats_ts_3.time_input_formats).format(
-          "h:mm:ss a",
-        )
+        ? moment_ts_3.moment(at, date_time_formats_ts_3.time_input_formats)
+          .format("h:mm:ss a")
         : write_moment.format("h:mm:ss a");
       const created = moment_ts_3.moment(
         `${date} ${time}`,
         "YYYY-MM-DD h:mm:ss a",
-      ).format(formats_ts_3.created_format);
+      ).format(date_time_formats_ts_3.created_format);
       const text = flag || subflags.args.join(" ");
       const new_entry = { id: mod_ts_7.v4.generate(), text, created, tags };
       const updated_store = [new_entry, ...store];
-      await database_ts_3.default.set("entries", updated_store);
+      await storage_ts_3.default.set("entries", updated_store);
       if (tags.length !== 0) {
-        const tags_store = await database_ts_3.default.get("tags");
+        const tags_store = await storage_ts_3.default.get("tags");
         tags.forEach((t) => {
           if (tags_store.includes(t)) {
             tags = tags.filter((_t) => _t !== t);
           }
         });
         const updated_tags_store = [...tags, ...tags_store];
-        await database_ts_3.default.set("tags", updated_tags_store);
+        await storage_ts_3.default.set("tags", updated_tags_store);
       }
-      display_ts_1.display(await search_ts_1.default.is_same(date), date);
+      display_ts_1.default.render(await find_ts_1.default.is_same(date), date);
     }
-    async function edit_entry(flag, args) {
-      const store = await database_ts_3.default.get("entries");
-      const entry = store.find((e) => e.id === flag);
-      if (entry) {
-        entry.text = args[0];
-        const semi_updated_store = store.filter((e) => e.id !== flag);
-        const updated_store = [entry, ...semi_updated_store];
-        await database_ts_3.default.set("entries", []); // Temporary
-        await database_ts_3.default.set("entries", updated_store);
-        const date = moment_ts_3.moment(
-          entry.created,
-          formats_ts_3.created_format,
-        ).format("YYYY-MM-DD");
-        display_ts_1.display(await search_ts_1.default.is_same(date), date);
-      } else {
-        console.log("Specified ID is incorrect.");
-      }
-    }
-    async function remove_entry(flag, subflags, args) {
-      const store = await database_ts_3.default.get("entries");
-      const { all, today, last, date, between, recent, tag } = subflags;
-      if (tag) {
-        remove_tag(tag);
-      } else if (all) {
-        await database_ts_3.default.set("entries", []);
-      } else if (recent) {
-        remove_recent(parseInt(recent));
-      } else if (today) {
-        remove_by(await search_ts_1.default.is_same(moment_ts_3.moment()));
-      } else if (last) {
-        remove_by(await search_ts_1.default.last(last));
-      } else if (date) {
-        remove_by(await search_ts_1.default.is_same(date));
-      } else if (between[0] && between[1]) {
-        remove_by(await search_ts_1.default.is_between(between));
-      } else if (flag) {
-        const entry = store.find((e) => e.id === flag);
-        if (entry) {
-          const updated_store = store.filter((e) => e.id !== flag);
-          await database_ts_3.default.set("entries", updated_store);
-          const date = moment_ts_3.moment(
-            entry.created,
-            formats_ts_3.created_format,
-          ).format("YYYY-MM-DD");
-          display_ts_1.display(await search_ts_1.default.is_same(date), date);
-        } else {
-          console.log("Specified ID is incorrect.");
+    async function edit(flag, subflags) {
+      const store = await storage_ts_3.default.get("entries");
+      const { recent, args } = subflags;
+      switch (true) {
+        case Boolean(recent): {
+          const entry = store.find((e, index) => index === 0);
+          if (entry) {
+            entry.text = recent;
+            const semi_updated_store = store.filter((e, index) => index !== 0);
+            after_edit(entry, semi_updated_store);
+          } else {
+            console.log("Didn't find any recent entries.");
+          }
+          break;
+        }
+        default: {
+          const entry = store.find((e) => e.id === flag);
+          if (entry) {
+            entry.text = args[0];
+            const semi_updated_store = store.filter((e) => e.id !== flag);
+            after_edit(entry, semi_updated_store);
+          } else {
+            console.log("Specified ID is incorrect.");
+          }
         }
       }
     }
-    async function remove_by(input) {
-      const store = await database_ts_3.default.get("entries");
-      const updated_store = store.filter((e) => !input.includes(e));
-      await database_ts_3.default.set("entries", updated_store);
-    }
-    async function remove_recent(input) {
-      const store = await database_ts_3.default.get("entries");
-      const updated_store = store.filter((e, index) => index >= input);
-      await database_ts_3.default.set("entries", updated_store);
-    }
-    async function remove_tag(input) {
-      const store = await database_ts_3.default.get("tags");
-      const tag = store.find((t) => t === input);
-      if (tag) {
-        const updated_store = store.filter((t) => t !== tag);
-        await database_ts_3.default.set("tags", updated_store);
-      }
+    async function after_edit(entry, semi_updated_store) {
+      const updated_store = [entry, ...semi_updated_store];
+      await storage_ts_3.default.set("entries", []); // Temporary
+      await storage_ts_3.default.set("entries", updated_store);
+      const date = moment_ts_3.moment(
+        entry.created,
+        date_time_formats_ts_3.created_format,
+      ).format("YYYY-MM-DD");
+      display_ts_1.default.render(await find_ts_1.default.is_same(date), date);
     }
     return {
       setters: [
-        function (database_ts_3_1) {
-          database_ts_3 = database_ts_3_1;
+        function (storage_ts_3_1) {
+          storage_ts_3 = storage_ts_3_1;
         },
         function (mod_ts_7_1) {
           mod_ts_7 = mod_ts_7_1;
         },
-        function (formats_ts_3_1) {
-          formats_ts_3 = formats_ts_3_1;
+        function (date_time_formats_ts_3_1) {
+          date_time_formats_ts_3 = date_time_formats_ts_3_1;
         },
         function (moment_ts_3_1) {
           moment_ts_3 = moment_ts_3_1;
@@ -10133,20 +10184,127 @@ System.register(
         function (display_ts_1_1) {
           display_ts_1 = display_ts_1_1;
         },
-        function (search_ts_1_1) {
-          search_ts_1 = search_ts_1_1;
+        function (find_ts_1_1) {
+          find_ts_1 = find_ts_1_1;
         },
-        function (regex_ts_2_1) {
-          regex_ts_2 = regex_ts_2_1;
+        function (regular_expressions_ts_2_1) {
+          regular_expressions_ts_2 = regular_expressions_ts_2_1;
         },
       ],
       execute: function () {
         _write = {
-          write_entry,
-          edit_entry,
-          remove_entry,
+          write,
+          edit,
         };
-        exports_37("default", _write);
+        exports_38("default", _write);
+      },
+    };
+  },
+);
+System.register(
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/remove",
+  [
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/find",
+    "https://deno.land/x/moment/moment",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
+  ],
+  function (exports_39, context_39) {
+    "use strict";
+    var storage_ts_4,
+      find_ts_2,
+      moment_ts_4,
+      date_time_formats_ts_4,
+      display_ts_2;
+    var __moduleName = context_39 && context_39.id;
+    async function remove(flag, subflags) {
+      const store = await storage_ts_4.default.get("entries");
+      const t_store = await storage_ts_4.default.get("tags");
+      const { all, today, last, date, between, recent, tag, args } = subflags;
+      switch (true) {
+        case Boolean(tag): {
+          const _tag = t_store.find((t) => t === tag);
+          if (_tag) {
+            const updated_store = t_store.filter((t) => t !== _tag);
+            await storage_ts_4.default.set("tags", updated_store);
+          }
+          break;
+        }
+        case Boolean(all): {
+          await storage_ts_4.default.set("entries", []);
+          break;
+        }
+        case Boolean(recent): {
+          const updated_store = store.filter((e, index) =>
+            index >= parseInt(recent)
+          );
+          await storage_ts_4.default.set("entries", updated_store);
+          break;
+        }
+        case Boolean(flag): {
+          const entry = store.find((e) => e.id === flag);
+          if (entry) {
+            const updated_store = store.filter((e) => e.id !== flag);
+            await storage_ts_4.default.set("entries", updated_store);
+            const date = moment_ts_4.moment(
+              entry.created,
+              date_time_formats_ts_4.created_format,
+            ).format("YYYY-MM-DD");
+            display_ts_2.default.render(
+              await find_ts_2.default.is_same(date),
+              date,
+            );
+          } else {
+            console.log("Specified ID is incorrect.");
+          }
+          break;
+        }
+      }
+      switch (true) {
+        case Boolean(today): {
+          by(await find_ts_2.default.is_same(moment_ts_4.moment()));
+          break;
+        }
+        case Boolean(last): {
+          by(await find_ts_2.default.last(last));
+          break;
+        }
+        case Boolean(date): {
+          by(await find_ts_2.default.is_same(date));
+          break;
+        }
+        case Boolean(between[0] && between[1]): {
+          by(await find_ts_2.default.is_between(between));
+          break;
+        }
+      }
+    }
+    exports_39("remove", remove);
+    async function by(input) {
+      const store = await storage_ts_4.default.get("entries");
+      const updated_store = store.filter((e) => !input.includes(e));
+      await storage_ts_4.default.set("entries", updated_store);
+    }
+    return {
+      setters: [
+        function (storage_ts_4_1) {
+          storage_ts_4 = storage_ts_4_1;
+        },
+        function (find_ts_2_1) {
+          find_ts_2 = find_ts_2_1;
+        },
+        function (moment_ts_4_1) {
+          moment_ts_4 = moment_ts_4_1;
+        },
+        function (date_time_formats_ts_4_1) {
+          date_time_formats_ts_4 = date_time_formats_ts_4_1;
+        },
+        function (display_ts_2_1) {
+          display_ts_2 = display_ts_2_1;
+        },
+      ],
+      execute: function () {
       },
     };
   },
@@ -10154,10 +10312,10 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/enums/list_types",
   [],
-  function (exports_38, context_38) {
+  function (exports_40, context_40) {
     "use strict";
     var ListTypes;
-    var __moduleName = context_38 && context_38.id;
+    var __moduleName = context_40 && context_40.id;
     return {
       setters: [],
       execute: function () {
@@ -10165,7 +10323,7 @@ System.register(
           ListTypes[ListTypes["Ordered"] = 1] = "Ordered";
           ListTypes[ListTypes["UnOrdered"] = 2] = "UnOrdered";
         })(ListTypes || (ListTypes = {}));
-        exports_38("ListTypes", ListTypes);
+        exports_40("ListTypes", ListTypes);
       },
     };
   },
@@ -10174,7 +10332,7 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/table",
   [],
-  function (exports_39, context_39) {
+  function (exports_41, context_41) {
     "use strict";
     var trailingWhitespace,
       space,
@@ -10189,7 +10347,7 @@ System.register(
       c,
       l,
       r;
-    var __moduleName = context_39 && context_39.id;
+    var __moduleName = context_41 && context_41.id;
     // Create a table from a matrix of strings.
     function markdownTable(table, options) {
       var settings = options || {};
@@ -10359,7 +10517,7 @@ System.register(
       }
       return lines.join(lineFeed);
     }
-    exports_39("default", markdownTable);
+    exports_41("default", markdownTable);
     function serialize(value) {
       return value === null || value === undefined ? "" : String(value);
     }
@@ -10418,10 +10576,10 @@ System.register(
     "https://deno.land/x/deno_markdown/src/enums/list_types",
     "https://deno.land/x/deno_markdown/src/table",
   ],
-  function (exports_40, context_40) {
+  function (exports_42, context_42) {
     "use strict";
     var list_types_ts_1, table_ts_1, Markdown;
-    var __moduleName = context_40 && context_40.id;
+    var __moduleName = context_42 && context_42.id;
     return {
       setters: [
         function (list_types_ts_1_1) {
@@ -10560,7 +10718,7 @@ System.register(
             Deno.close(file.rid);
           }
         };
-        exports_40("Markdown", Markdown);
+        exports_42("Markdown", Markdown);
       },
     };
   },
@@ -10568,9 +10726,9 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/extensions",
   [],
-  function (exports_41, context_41) {
+  function (exports_43, context_43) {
     "use strict";
-    var __moduleName = context_41 && context_41.id;
+    var __moduleName = context_43 && context_43.id;
     /**
     * Creates a block of inline code
     * @param code
@@ -10578,7 +10736,7 @@ System.register(
     function inlineCode(code) {
       return `\`${code}\``;
     }
-    exports_41("inlineCode", inlineCode);
+    exports_43("inlineCode", inlineCode);
     /**
     * Creates a string with italics
     * @param text The text you wish to be made italic
@@ -10592,7 +10750,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_41("italics", italics);
+    exports_43("italics", italics);
     /**
     * Creates a string with bold
     * @param text The text you wish to be made bold
@@ -10606,7 +10764,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_41("bold", bold);
+    exports_43("bold", bold);
     /**
     * Creates a string with a strike through
     * @param text The text you wish to be have a strike through
@@ -10615,7 +10773,7 @@ System.register(
     function strike(text) {
       return "~~" + text + "~~";
     }
-    exports_41("strike", strike);
+    exports_43("strike", strike);
     /**
     * Creates a markdown link block
     * @param altText The alt text of the link
@@ -10627,7 +10785,7 @@ System.register(
         title === undefined ? "" : ' "' + title + '"'
       })`;
     }
-    exports_41("link", link);
+    exports_43("link", link);
     /**
     * Creates a markdown image block
     * @param altText The alt text of the image
@@ -10637,7 +10795,7 @@ System.register(
     function image(altText, imageLink, title) {
       return `!${link(altText, imageLink, title)}`;
     }
-    exports_41("image", image);
+    exports_43("image", image);
     return {
       setters: [],
       execute: function () {
@@ -10653,9 +10811,9 @@ System.register(
     "https://deno.land/x/deno_markdown/src/main",
     "https://deno.land/x/deno_markdown/src/extensions",
   ],
-  function (exports_42, context_42) {
+  function (exports_44, context_44) {
     "use strict";
-    var __moduleName = context_42 && context_42.id;
+    var __moduleName = context_44 && context_44.id;
     var exportedNames_2 = {
       "ListTypes": true,
       "Markdown": true,
@@ -10667,17 +10825,17 @@ System.register(
           exports[n] = m[n];
         }
       }
-      exports_42(exports);
+      exports_44(exports);
     }
     return {
       setters: [
         function (list_types_ts_2_1) {
-          exports_42({
+          exports_44({
             "ListTypes": list_types_ts_2_1["ListTypes"],
           });
         },
         function (main_ts_1_1) {
-          exports_42({
+          exports_44({
             "Markdown": main_ts_1_1["Markdown"],
           });
         },
@@ -10691,53 +10849,67 @@ System.register(
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/import_export",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/import_export",
   [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
     "https://deno.land/x/deno_markdown/mod",
     "https://deno.land/x/moment/moment",
   ],
-  function (exports_43, context_43) {
+  function (exports_45, context_45) {
     "use strict";
-    var database_ts_4, mod_ts_8, moment_ts_4, _impexp;
-    var __moduleName = context_43 && context_43.id;
+    var storage_ts_5, mod_ts_8, moment_ts_5, _impexp;
+    var __moduleName = context_45 && context_45.id;
     async function export_entries_md(flag) {
       let markdown = new mod_ts_8.Markdown();
-      const export_time = moment_ts_4.moment().format("MMMM_Do_YYYY_h_mm_a");
-      const entries = await database_ts_4.default.get("entries");
+      const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
+      const tags = await storage_ts_5.default.get("tags");
+      const entries = await storage_ts_5.default.get("entries");
       const entries_to_export = entries.map((e) =>
-        `[${e.created}]: ${e.text}.`
+        `[${e.created}]: **-->** ${e.text}.`
       );
       await markdown
-        .header("Entries", 1)
         .header(export_time, 3)
+        .header("Tags", 1)
+        .list(tags, mod_ts_8.ListTypes.UnOrdered)
+        .header("Entries", 1)
         .list(entries_to_export, mod_ts_8.ListTypes.Ordered)
         .quote("Generated by snippet-cli.")
         .write("./", `snippet_cli_export_${export_time}`);
     }
+    async function export_entries_text(flag) {
+      const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
+      const tags = await storage_ts_5.default.get("tags");
+      const entries = await storage_ts_5.default.get("entries");
+      const entries_to_export = entries.map((e) =>
+        `[${e.created}]: --> ${e.text}.`
+      );
+      Deno.writeTextFile(
+        `snippet_cli_export_${export_time}.txt`,
+        `Tags:\n${tags.join(", ")}\n\nEntries:\n${
+          entries_to_export.join("\n")
+        }`,
+      );
+    }
     async function export_entries_json(flag) {
-      const export_time = moment_ts_4.moment().format("MMMM_Do_YYYY_h_mm_a");
-      await Deno.writeTextFile(
-        `snippet_cli_export_${export_time}.json`,
-        JSON.stringify(await database_ts_4.default.get("entries")),
+      const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
+      await Deno.copyFile(
+        "./journals/default.json",
+        `./snippet_cli_export_${export_time}.json`,
       );
     }
     async function import_entries(flag) {
-      await database_ts_4.default.set(
-        "entries",
-        JSON.parse(await Deno.readTextFile(flag)),
-      );
+      await Deno.copyFile(flag, `./journals/default.json`);
     }
     return {
       setters: [
-        function (database_ts_4_1) {
-          database_ts_4 = database_ts_4_1;
+        function (storage_ts_5_1) {
+          storage_ts_5 = storage_ts_5_1;
         },
         function (mod_ts_8_1) {
           mod_ts_8 = mod_ts_8_1;
         },
-        function (moment_ts_4_1) {
-          moment_ts_4 = moment_ts_4_1;
+        function (moment_ts_5_1) {
+          moment_ts_5 = moment_ts_5_1;
         },
       ],
       execute: function () {
@@ -10745,22 +10917,23 @@ System.register(
           import_entries,
           export_entries_json,
           export_entries_md,
+          export_entries_text,
         };
-        exports_43("default", _impexp);
+        exports_45("default", _impexp);
       },
     };
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/help",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
   [],
-  function (exports_44, context_44) {
+  function (exports_46, context_46) {
     "use strict";
-    var __moduleName = context_44 && context_44.id;
+    var __moduleName = context_46 && context_46.id;
     return {
       setters: [],
       execute: function () {
-        exports_44(
+        exports_46(
           "default",
           `
 snippet-cli 0.1
@@ -10868,30 +11041,31 @@ OPTIONS:
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/lib/extras",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/extras",
   [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/database",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/help",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
   ],
-  function (exports_45, context_45) {
+  function (exports_47, context_47) {
     "use strict";
-    var database_ts_5, help_ts_1, _extras;
-    var __moduleName = context_45 && context_45.id;
+    var storage_ts_6, help_ts_1, _extras;
+    var __moduleName = context_47 && context_47.id;
     async function reset() {
-      await database_ts_5.default.clear();
+      await storage_ts_6.default.clear();
+      await Deno.remove("./journals", { recursive: true });
       console.log("Starting from scratch..!");
     }
     async function help() {
       console.log(help_ts_1.default);
     }
     async function set_view_mode(flag) {
-      await database_ts_5.default.set("view_mode", flag);
+      await storage_ts_6.default.set("view_mode", flag);
       console.log(`Default View Mode is: ${flag}`);
     }
     return {
       setters: [
-        function (database_ts_5_1) {
-          database_ts_5 = database_ts_5_1;
+        function (storage_ts_6_1) {
+          storage_ts_6 = storage_ts_6_1;
         },
         function (help_ts_1_1) {
           help_ts_1 = help_ts_1_1;
@@ -10903,39 +11077,45 @@ System.register(
           reset,
           help,
         };
-        exports_45("default", _extras);
+        exports_47("default", _extras);
       },
     };
   },
 );
 System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/snpt",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/main",
   [
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/search",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/write",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/import_export",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/extras",
-    "https://deno.land/std/flags/mod",
-    "file:///home/yazid/Documents/projects/snippet-cli/lib/display",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/find",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/modify",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/remove",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/import_export",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/extras",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/user_input",
   ],
-  function (exports_46, context_46) {
+  function (exports_48, context_48) {
     "use strict";
-    var search_ts_2,
-      write_ts_1,
+    var find_ts_3,
+      modify_ts_1,
+      display_ts_3,
+      remove_ts_1,
       import_export_ts_1,
       extras_ts_1,
-      mod_ts_9,
-      flags,
-      args,
-      display_ts_2;
-    var __moduleName = context_46 && context_46.id;
+      user_input_ts_2;
+    var __moduleName = context_48 && context_48.id;
     return {
       setters: [
-        function (search_ts_2_1) {
-          search_ts_2 = search_ts_2_1;
+        function (find_ts_3_1) {
+          find_ts_3 = find_ts_3_1;
         },
-        function (write_ts_1_1) {
-          write_ts_1 = write_ts_1_1;
+        function (modify_ts_1_1) {
+          modify_ts_1 = modify_ts_1_1;
+        },
+        function (display_ts_3_1) {
+          display_ts_3 = display_ts_3_1;
+        },
+        function (remove_ts_1_1) {
+          remove_ts_1 = remove_ts_1_1;
         },
         function (import_export_ts_1_1) {
           import_export_ts_1 = import_export_ts_1_1;
@@ -10943,94 +11123,139 @@ System.register(
         function (extras_ts_1_1) {
           extras_ts_1 = extras_ts_1_1;
         },
-        function (mod_ts_9_1) {
-          mod_ts_9 = mod_ts_9_1;
-        },
-        function (display_ts_2_1) {
-          display_ts_2 = display_ts_2_1;
+        function (user_input_ts_2_1) {
+          user_input_ts_2 = user_input_ts_2_1;
         },
       ],
       execute: async function () {
-        flags = mod_ts_9.parse(Deno.args), args = flags._;
-        display_ts_2.init_display();
-        // Search
-        if (flags.s || flags.search) {
-          display_ts_2.display(
-            await search_ts_2.default.search_by_text(flags.s || flags.search),
-            flags.s || flags.search,
-          );
-        }
-        if (flags.t || flags.tag) {
-          display_ts_2.display(
-            await search_ts_2.default.search_by_tag(flags.t || flags.tag),
-            flags.t || flags.tag,
-          );
-        }
-        if (flags.d || flags.date) {
-          display_ts_2.display(
-            await search_ts_2.default.is_same(flags.d || flags.date),
-            flags.d || flags.date,
-          );
-        }
-        if ((flags.f && flags.u) || (flags.from && flags.until)) {
-          display_ts_2.display(
-            await search_ts_2.default.is_between(
-              flags.f
-                ? [flags.f, flags.u]
-                : [flags.from, flags.until],
-            ),
-            `${flags.f || flags.from} ---> ${flags.u || flags.until}`,
-          );
-        }
-        if (flags.l || flags.last) {
-          display_ts_2.display(
-            await search_ts_2.default.last(flags.l || flags.last),
-            flags.l || flags.last,
-          );
-        }
-        // Write
-        if (flags.w || flags.write || args.length) {
-          write_ts_1.default.write_entry(flags.w || flags.write, {
-            on: flags.on,
-            at: flags.at,
-            args,
-          });
-        }
-        if (flags.e || flags.edit) {
-          write_ts_1.default.edit_entry(flags.e || flags.edit, args);
-        }
-        if (flags.r || flags.remove) {
-          write_ts_1.default.remove_entry(flags.r || flags.remove, {
-            today: flags.today,
-            last: flags.l || flags.last,
-            date: flags.d || flags.date,
-            between: [flags.f || flags.from, flags.u || flags.until],
-            all: flags.a || flags.all,
-            recent: flags.recent,
-            tag: flags.t || flags.tag,
-          }, args);
-        }
-        // Export & Import
-        if (flags.m || flags.markdown) {
-          import_export_ts_1.default.export_entries_md(
-            flags.m || flags.markdown,
-          );
-        }
-        if (flags.j || flags.json) {
-          import_export_ts_1.default.export_entries_json(flags.j || flags.json);
-        }
-        if (flags.i || flags.import) {
-          import_export_ts_1.default.import_entries(flags.i || flags.import);
-        }
-        // Extras
-        if (flags.setview) {
-          extras_ts_1.default.set_view_mode(flags.setview);
-        }
-        if (flags.c || flags.clear) {
-          extras_ts_1.default.reset();
-        }
-        if (flags.h || flags.help) {
-          extras_ts_1.default.help();
+        switch (true) {
+          case Boolean(user_input_ts_2.default.find.by_text): {
+            display_ts_3.default.render(
+              await find_ts_3.default.by_text(
+                user_input_ts_2.default.find.by_text,
+              ),
+              user_input_ts_2.default.find.by_text,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.find.by_tag): {
+            display_ts_3.default.render(
+              await find_ts_3.default.by_tag(
+                user_input_ts_2.default.find.by_tag,
+              ),
+              user_input_ts_2.default.find.by_tag,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.find.by_date): {
+            display_ts_3.default.render(
+              await find_ts_3.default.is_same(
+                user_input_ts_2.default.find.by_date,
+              ),
+              user_input_ts_2.default.find.by_date,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.find.by_command): {
+            display_ts_3.default.render(
+              await find_ts_3.default.last(
+                user_input_ts_2.default.find.by_command,
+              ),
+              user_input_ts_2.default.find.by_command,
+            );
+            break;
+          }
+          case Boolean(
+            user_input_ts_2.default.find.by_period.from &&
+              user_input_ts_2.default.find.by_period.until,
+          ): {
+            display_ts_3.default.render(
+              await find_ts_3.default.is_between([
+                user_input_ts_2.default.find.by_period.from,
+                user_input_ts_2.default.find.by_period.until,
+              ]),
+              `${user_input_ts_2.default.find.by_period.from} ---> ${user_input_ts_2.default.find.by_period.until}`,
+            );
+            break;
+          }
+          case Boolean(
+            user_input_ts_2.default.modify._write.write ||
+              user_input_ts_2.default.modify._write.sub.args.length,
+          ): {
+            modify_ts_1.default.write(
+              user_input_ts_2.default.modify._write.write,
+              user_input_ts_2.default.modify._write.sub,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.modify._edit.edit): {
+            modify_ts_1.default.edit(
+              user_input_ts_2.default.modify._edit.edit,
+              user_input_ts_2.default.modify._edit.sub,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.modify._remove.remove): {
+            remove_ts_1.remove(
+              user_input_ts_2.default.modify._remove.remove,
+              user_input_ts_2.default.modify._remove.sub,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.display.all): {
+            display_ts_3.default.all();
+            break;
+          }
+          case Boolean(user_input_ts_2.default.display.today): {
+            display_ts_3.default.today();
+            break;
+          }
+          case Boolean(user_input_ts_2.default.display.tags): {
+            display_ts_3.default.tags();
+            break;
+          }
+          case Boolean(user_input_ts_2.default.import_export.import): {
+            import_export_ts_1.default.import_entries(
+              user_input_ts_2.default.import_export.import,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.import_export.export_markdown): {
+            import_export_ts_1.default.export_entries_md(
+              user_input_ts_2.default.import_export.export_markdown,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.import_export.export_text): {
+            import_export_ts_1.default.export_entries_text(
+              user_input_ts_2.default.import_export.export_text,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.import_export.export_json): {
+            import_export_ts_1.default.export_entries_json(
+              user_input_ts_2.default.import_export.export_json,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.extras.set_default_view): {
+            extras_ts_1.default.set_view_mode(
+              user_input_ts_2.default.extras.set_default_view,
+            );
+            break;
+          }
+          case Boolean(user_input_ts_2.default.extras.clear): {
+            extras_ts_1.default.reset();
+            break;
+          }
+          case Boolean(user_input_ts_2.default.extras.help): {
+            extras_ts_1.default.help();
+            break;
+          }
+          default: {
+            console.log("Use -h or --help to get started.");
+            break;
+          }
         }
       },
     };
@@ -11038,5 +11263,5 @@ System.register(
 );
 
 await __instantiateAsync(
-  "file:///home/yazid/Documents/projects/snippet-cli/snpt",
+  "file:///home/yazid/Documents/projects/snippet-cli/src/main",
 );
