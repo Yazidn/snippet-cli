@@ -23,9 +23,9 @@ input = {
     _edit: {
       edit: flags.e || flags.edit,
       sub: {
-        recent: flags.recent
+        recent: flags.recent,
+        args,
       },
-      args,
     },
     _remove: {
       remove: flags.r || flags.remove,

@@ -54,24 +54,49 @@ async function write(flag: any, subflags: any) {
   display.render(await find.is_same(date), date);
 }
 
-async function edit(flag: any, args: any) {
+async function edit(flag: any, subflags: any) {
   const store = await db.get("entries");
-  const entry = store.find((e: any) => e.id === flag);
-  if (entry) {
-    entry.text = args[0];
-    const semi_updated_store = store.filter((e: any) => e.id !== flag);
+  const { recent, args } = subflags;
 
-    const updated_store = [entry, ...semi_updated_store];
-    await db.set("entries", []); // Temporary
-    await db.set("entries", updated_store);
+  switch (true) {
+    case Boolean(recent): {
+      const entry = store.find((e: any, index: number) => index === 0);
+      if (entry) {
+        entry.text = recent;
+        const semi_updated_store = store.filter(
+          (e: any, index: number) => index !== 0
+        );
 
-    const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-    display.render(await find.is_same(date), date);
-  } else console.log("Specified ID is incorrect.");
+        const updated_store = [entry, ...semi_updated_store];
+        await db.set("entries", []); // Temporary
+        await db.set("entries", updated_store);
+
+        const date = moment(entry.created, created_format).format("YYYY-MM-DD");
+        display.render(await find.is_same(date), date);
+      } else console.log("Didn't find any recent entries.");
+      break;
+    }
+
+    default: {
+      const entry = store.find((e: any) => e.id === flag);
+      if (entry) {
+        entry.text = args[0];
+        const semi_updated_store = store.filter((e: any) => e.id !== flag);
+
+        const updated_store = [entry, ...semi_updated_store];
+        await db.set("entries", []); // Temporary
+        await db.set("entries", updated_store);
+
+        const date = moment(entry.created, created_format).format("YYYY-MM-DD");
+        display.render(await find.is_same(date), date);
+      } else console.log("Specified ID is incorrect.");
+    }
+  }
 }
 
 const _write = {
-  write, edit
+  write,
+  edit,
 };
 
 export default _write;

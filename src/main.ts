@@ -61,8 +61,8 @@ switch (true) {
     break;
   }
 
-  case Boolean(input.modify.edit): {
-    modify.edit(input.modify._edit.edit, input.modify._edit.args);
+  case Boolean(input.modify._edit.edit): {
+    modify.edit(input.modify._edit.edit, input.modify._edit.sub);
     break;
   }
 
