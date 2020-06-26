@@ -5,26 +5,26 @@ import { moment } from "https://deno.land/x/moment/moment.ts";
 import { created_format } from "./date_time_formats.ts";
 import input from "./user_input.ts";
 
-async function display_today_entries() {
+async function today() {
   let search_results: any[] = [];
 
   const store = await db.get("entries");
   search_results = store.filter((e: any) => {
     if (moment(e.created, created_format).isSame(moment(), "day")) return e;
   });
-  display(search_results, "Today");
+  render(search_results, "Today");
 }
 
-async function display_all_entries() {
+async function all() {
   const entries = await db.get("entries");
-  if (await db.has("entries")) display(await db.get("entries"), "All");
+  if (await db.has("entries")) render(await db.get("entries"), "All");
 }
 
-async function display_all_tags() {
-  display(await db.get("tags"), "Tags", true);
+async function tags() {
+  render(await db.get("tags"), "Tags", true);
 }
 
-async function display(output: any, context?: string, tags?: boolean) {
+async function render(output: any, context?: string, tags?: boolean) {
   if (output.length === 0) {
     console.log(`Nothing to display for ${context || ""}`);
   } else {
@@ -73,9 +73,8 @@ async function display(output: any, context?: string, tags?: boolean) {
   }
 }
 
-export {
-  display,
-  display_all_entries,
-  display_today_entries,
-  display_all_tags,
-};
+const _display = {
+  render, all, today, tags
+}
+
+export default _display;

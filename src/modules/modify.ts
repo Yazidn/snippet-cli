@@ -6,7 +6,7 @@ import {
   created_format,
 } from "./date_time_formats.ts";
 import { moment } from "https://deno.land/x/moment/moment.ts";
-import { display } from "./display.ts";
+import display from "./display.ts";
 import find from "./find.ts";
 import regex from "./regular_expressions.ts";
 
@@ -51,7 +51,7 @@ async function write(flag: any, subflags: any) {
     await db.set("tags", updated_tags_store);
   }
 
-  display(await find.is_same(date), date);
+  display.render(await find.is_same(date), date);
 }
 
 async function edit(flag: any, args: any) {
@@ -66,7 +66,7 @@ async function edit(flag: any, args: any) {
     await db.set("entries", updated_store);
 
     const date = moment(entry.created, created_format).format("YYYY-MM-DD");
-    display(await find.is_same(date), date);
+    display.render(await find.is_same(date), date);
   } else console.log("Specified ID is incorrect.");
 }
 

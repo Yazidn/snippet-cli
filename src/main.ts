@@ -1,11 +1,6 @@
 import find from "./modules/find.ts";
 import modify from "./modules/modify.ts";
-import {
-  display,
-  display_all_entries,
-  display_today_entries,
-  display_all_tags,
-} from "./modules/display.ts";
+import display from './modules/display.ts';
 import { remove } from "./modules/remove.ts";
 import import_export from "./modules/import_export.ts";
 import extras from "./modules/extras.ts";
@@ -14,49 +9,49 @@ import input from "./modules/user_input.ts";
 switch (true) {
   // Display: All
   case Boolean(input.display.all): {
-    display_all_entries();
+    display.all();
     break;
   }
 
   // Today
   case Boolean(input.display.today): {
-    display_today_entries();
+    display.today();
     break;
   }
 
   // Tags
   case Boolean(input.display.tags): {
-    display_all_tags();
+    display.tags();
     break;
   }
 
   // Find: By Text
   case Boolean(input.find.by_text): {
-    display(await find.by_text(input.find.by_text), input.find.by_text);
+    display.render(await find.by_text(input.find.by_text), input.find.by_text);
     break;
   }
 
   // By Tag
   case Boolean(input.find.by_tag): {
-    display(await find.by_tag(input.find.by_tag), input.find.by_tag);
+    display.render(await find.by_tag(input.find.by_tag), input.find.by_tag);
     break;
   }
 
   // By Date
   case Boolean(input.find.by_date): {
-    display(await find.is_same(input.find.by_date), input.find.by_date);
+    display.render(await find.is_same(input.find.by_date), input.find.by_date);
     break;
   }
 
   // By "Last" Command
   case Boolean(input.find.by_command): {
-    display(await find.last(input.find.by_command), input.find.by_command);
+    display.render(await find.last(input.find.by_command), input.find.by_command);
     break;
   }
 
   // By Time Period
   case Boolean(input.find.by_period.from && input.find.by_period.until): {
-    display(
+    display.render(
       await find.is_between([
         input.find.by_period.from,
         input.find.by_period.until,
