@@ -2,9 +2,9 @@ import { parse } from "https://deno.land/std/flags/mod.ts";
 
 let flags = parse(Deno.args),
   args = flags._,
-  _f: any;
+  input: any;
 
-_f = {
+input = {
   modify: {
     _write: {
       write: flags.w || flags.write,
@@ -54,4 +54,4 @@ _f = {
   },
 };
 
-export default _f;
+export default input;
