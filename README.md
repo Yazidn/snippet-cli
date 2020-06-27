@@ -1,7 +1,8 @@
-### For latest code, check out the [unstable](https://github.com/Yazidn/snippet-cli/tree/unstable) branch.
-
 # snippet-cli
 An entry based journaling application for your terminal built in [Deno](https://deno.land).
+
+### Latest code 
+Check out the **[unstable](https://github.com/Yazidn/snippet-cli/tree/unstable)** branch.
 
 ## Installation
 1. You will need [Deno](https://deno.land) to install and run snippet.

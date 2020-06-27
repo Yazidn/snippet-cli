@@ -3525,7 +3525,7 @@ System.register(
       execute: async function () {
         init = async () => {
           const default_journal = new mod_ts_3.Store(
-            { name: "default.json", path: "./journals" },
+            { name: "default.snpt", path: "./journals" },
           );
           if (!(await default_journal.has("entries"))) {
             await default_journal.set("entries", []);
@@ -8062,9 +8062,11 @@ System.register(
         }
       });
     }
-    async function by_tag(flag) {
+    async function by_tag(flag, args) {
       const store = await storage_ts_1.default.get("entries");
-      return store.filter((e) => e.tags.includes(flag));
+      return store.filter((e) =>
+        e.tags.some((t) => [flag, ...args].includes(t))
+      );
     }
     return {
       setters: [
@@ -9918,7 +9920,10 @@ System.register(
           },
           find: {
             by_text: flags.s || flags.search,
-            by_tag: flags.t || flags.tag,
+            _by_tag: {
+              by_tag: flags.t || flags.tag,
+              args,
+            },
             by_date: flags.d || flags.date || flags.o || flags.on,
             by_period: {
               from: flags.f || flags.from,
@@ -10067,6 +10072,181 @@ System.register(
   },
 );
 System.register(
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
+  [],
+  function (exports_38, context_38) {
+    "use strict";
+    var __moduleName = context_38 && context_38.id;
+    return {
+      setters: [],
+      execute: function () {
+        exports_38(
+          "default",
+          `
+snippet-cli 0.9
+An entry based journaling application.
+
+USAGE:
+
+    snpt [OPTIONS] [INPUT]
+
+OPTIONS:
+
+    DISPLAY:
+
+        --today, --today
+            Display today's entries.
+
+        -a, --all
+            Display all entries since day one.
+        
+        -v, --view <option>
+            Specify how to display your entries.
+            OPTIONS:
+                - mini
+                - compact
+                - table
+                - tree (default)
+
+        --tags, --tags
+            Display a list of all your tags.
+
+    WRITE:
+
+        -w, --write <entry>
+            Write a new entry
+
+        @ or #
+            Use @ or # to create and use tags in your entries. (e.g. @deno #new_tag)
+
+        --set, -a <entry> --set <date>
+            Specify a date when writing an entry.
+
+        -e, --edit <entry_id> <updated_entry_text>
+            Edit an existing entry
+
+        -r, --remove <entry_id>
+            Remove an entry, provide the ID
+
+    SEARCH:
+
+        -d, --date
+            Display entries for a specified date (See date formats below).
+
+        -s, --search
+            Search entries by text.
+
+        -t, --tag
+            Search entries by tag.
+
+        -f and -t, --from and --to
+            Display entries between two specified dates. (See date formats below).
+
+        -l, --last
+            A flexible way to go back in time to a specific day or any number of days, weeks, months or years.
+            OPTIONS:
+                - sunday, Monday, TUESDAY, and so on.
+                - day, yeserday, 1day, 2day, 10day, 36day and so on.
+                - week, 1week, 10week, 8week and so on.
+                - month, 1month, 2month, 9month and so on.
+                - year, 1year, 2year, 5year and so on.
+
+    EXPORT/IMPORT:
+
+        -m, --markdown
+            Export your entries to a styled markdown file.
+
+        -j, --json
+            Export your entries to a restorable JSON file.
+
+        -i, --import <json_file_path>
+            Export your entries to a restorable JSON file.
+
+    EXTRA:
+
+        -c, --clear
+            Clear everything and reset snippet.
+
+        -h, --help
+            Display help to get started.
+
+    DATE FORMATS:
+
+        YYYY-MM-DD (e.g. 2020-06-16)
+        DD-MM-YYYY (e.g. 16-06-2020)
+        DD-MM-YY (e.g. 16-06-20)
+        YY-MM-DD (e.g. 20-06-16)
+        M-D (e.g. 6-17, 06-17)
+        MM-YYYY (e.g. 6-2020, 06-2020)
+        M (e.g. 6, 06, 2, 4, 09, 12)
+        YYYY (e.g. 2020, 2016)
+        YY (e.g. 20, 18, 14, 98)
+        `,
+        );
+      },
+    };
+  },
+);
+System.register(
+  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/extras",
+  [
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/regular_expressions",
+  ],
+  function (exports_39, context_39) {
+    "use strict";
+    var storage_ts_3, help_ts_1, regular_expressions_ts_2, _extras;
+    var __moduleName = context_39 && context_39.id;
+    async function reset() {
+      await storage_ts_3.default.clear();
+      await Deno.remove("./journals", { recursive: true });
+      console.log("Starting from scratch..!");
+    }
+    async function help() {
+      console.log(help_ts_1.default);
+    }
+    async function set_view_mode(flag) {
+      await storage_ts_3.default.set("view_mode", flag);
+      console.log(`Default View Mode is: ${flag}`);
+    }
+    function extract_tags(text) {
+      let tags = [];
+      let is_tag;
+      do {
+        is_tag = regular_expressions_ts_2.default.rx_tag.exec(text);
+        if (is_tag) {
+          tags.push(is_tag[2]);
+        }
+      } while (is_tag);
+      tags = [...new Set(tags)];
+      return tags;
+    }
+    return {
+      setters: [
+        function (storage_ts_3_1) {
+          storage_ts_3 = storage_ts_3_1;
+        },
+        function (help_ts_1_1) {
+          help_ts_1 = help_ts_1_1;
+        },
+        function (regular_expressions_ts_2_1) {
+          regular_expressions_ts_2 = regular_expressions_ts_2_1;
+        },
+      ],
+      execute: function () {
+        _extras = {
+          set_view_mode,
+          reset,
+          help,
+          extract_tags,
+        };
+        exports_39("default", _extras);
+      },
+    };
+  },
+);
+System.register(
   "file:///home/yazid/Documents/projects/snippet-cli/src/modules/modify",
   [
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
@@ -10076,31 +10256,24 @@ System.register(
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/find",
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/regular_expressions",
+    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/extras",
   ],
-  function (exports_38, context_38) {
+  function (exports_40, context_40) {
     "use strict";
-    var storage_ts_3,
+    var storage_ts_4,
       mod_ts_7,
       date_time_formats_ts_3,
       moment_ts_3,
       display_ts_1,
       find_ts_1,
-      regular_expressions_ts_2,
+      regular_expressions_ts_3,
+      extras_ts_1,
       _write;
-    var __moduleName = context_38 && context_38.id;
+    var __moduleName = context_40 && context_40.id;
     async function write(flag, subflags) {
-      let tags = [];
-      let is_tag;
-      do {
-        is_tag = regular_expressions_ts_2.default.rx_tag.exec(flag);
-        if (is_tag) {
-          tags.push(is_tag[2]);
-        }
-      } while (is_tag);
-      tags = [...new Set(tags)];
-      const store = await storage_ts_3.default.get("entries");
-      const on = subflags.on;
-      const at = subflags.at;
+      let tags = extras_ts_1.default.extract_tags(flag);
+      const store = await storage_ts_4.default.get("entries");
+      const { on, at } = subflags;
       const write_moment = moment_ts_3.moment();
       const date = on
         ? moment_ts_3.moment(on, date_time_formats_ts_3.date_input_formats)
@@ -10117,29 +10290,31 @@ System.register(
       const text = flag || subflags.args.join(" ");
       const new_entry = { id: mod_ts_7.v4.generate(), text, created, tags };
       const updated_store = [new_entry, ...store];
-      await storage_ts_3.default.set("entries", updated_store);
+      await storage_ts_4.default.set("entries", updated_store);
       if (tags.length !== 0) {
-        const tags_store = await storage_ts_3.default.get("tags");
+        const tags_store = await storage_ts_4.default.get("tags");
         tags.forEach((t) => {
           if (tags_store.includes(t)) {
             tags = tags.filter((_t) => _t !== t);
           }
         });
         const updated_tags_store = [...tags, ...tags_store];
-        await storage_ts_3.default.set("tags", updated_tags_store);
+        await storage_ts_4.default.set("tags", updated_tags_store);
       }
       display_ts_1.default.render(await find_ts_1.default.is_same(date), date);
     }
     async function edit(flag, subflags) {
-      const store = await storage_ts_3.default.get("entries");
-      const t_store = await storage_ts_3.default.get("tags");
+      const store = await storage_ts_4.default.get("entries");
+      const t_store = await storage_ts_4.default.get("tags");
       const { recent, args } = subflags;
-      const is_tag = regular_expressions_ts_2.default.rx_tag.exec(flag);
+      const is_tag = regular_expressions_ts_3.default.rx_tag.exec(flag);
       switch (true) {
         case Boolean(recent): {
           const entry = store.find((e, index) => index === 0);
+          let tags = extras_ts_1.default.extract_tags(recent);
           if (entry) {
             entry.text = recent;
+            entry.tags = tags;
             const semi_updated_store = store.filter((e, index) => index !== 0);
             after_edit(entry, semi_updated_store);
           } else {
@@ -10153,7 +10328,7 @@ System.register(
           if (tag) {
             tag = args[0];
             const semi_updated_tag_store = t_store.filter((t) => t !== _tag);
-            await storage_ts_3.default.set(
+            await storage_ts_4.default.set(
               "tags",
               [tag, ...semi_updated_tag_store],
             );
@@ -10166,14 +10341,16 @@ System.register(
               return e;
             });
             const updated_store = store.filter((e) => !e.tags.includes(_tag));
-            await storage_ts_3.default.set("entries", updated_store);
+            await storage_ts_4.default.set("entries", updated_store);
           }
           break;
         }
         default: {
           const entry = store.find((e) => e.id === flag);
+          let tags = extras_ts_1.default.extract_tags(args[0]);
           if (entry) {
             entry.text = args[0];
+            entry.tags = tags;
             const semi_updated_store = store.filter((e) => e.id !== flag);
             after_edit(entry, semi_updated_store);
           } else {
@@ -10184,8 +10361,8 @@ System.register(
     }
     async function after_edit(entry, semi_updated_store) {
       const updated_store = [entry, ...semi_updated_store];
-      await storage_ts_3.default.set("entries", []); // Temporary
-      await storage_ts_3.default.set("entries", updated_store);
+      await storage_ts_4.default.set("entries", []); // Temporary
+      await storage_ts_4.default.set("entries", updated_store);
       const date = moment_ts_3.moment(
         entry.created,
         date_time_formats_ts_3.created_format,
@@ -10194,8 +10371,8 @@ System.register(
     }
     return {
       setters: [
-        function (storage_ts_3_1) {
-          storage_ts_3 = storage_ts_3_1;
+        function (storage_ts_4_1) {
+          storage_ts_4 = storage_ts_4_1;
         },
         function (mod_ts_7_1) {
           mod_ts_7 = mod_ts_7_1;
@@ -10212,8 +10389,11 @@ System.register(
         function (find_ts_1_1) {
           find_ts_1 = find_ts_1_1;
         },
-        function (regular_expressions_ts_2_1) {
-          regular_expressions_ts_2 = regular_expressions_ts_2_1;
+        function (regular_expressions_ts_3_1) {
+          regular_expressions_ts_3 = regular_expressions_ts_3_1;
+        },
+        function (extras_ts_1_1) {
+          extras_ts_1 = extras_ts_1_1;
         },
       ],
       execute: function () {
@@ -10221,7 +10401,7 @@ System.register(
           write,
           edit,
         };
-        exports_38("default", _write);
+        exports_40("default", _write);
       },
     };
   },
@@ -10235,43 +10415,43 @@ System.register(
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/date_time_formats",
     "file:///home/yazid/Documents/projects/snippet-cli/src/modules/display",
   ],
-  function (exports_39, context_39) {
+  function (exports_41, context_41) {
     "use strict";
-    var storage_ts_4,
+    var storage_ts_5,
       find_ts_2,
       moment_ts_4,
       date_time_formats_ts_4,
       display_ts_2;
-    var __moduleName = context_39 && context_39.id;
+    var __moduleName = context_41 && context_41.id;
     async function remove(flag, subflags) {
-      const store = await storage_ts_4.default.get("entries");
-      const t_store = await storage_ts_4.default.get("tags");
+      const store = await storage_ts_5.default.get("entries");
+      const t_store = await storage_ts_5.default.get("tags");
       const { all, today, last, date, between, recent, tag, args } = subflags;
       switch (true) {
         case Boolean(tag): {
           const _tag = t_store.find((t) => t === tag);
           if (_tag) {
             const updated_store = t_store.filter((t) => t !== _tag);
-            await storage_ts_4.default.set("tags", updated_store);
+            await storage_ts_5.default.set("tags", updated_store);
           }
           break;
         }
         case Boolean(all): {
-          await storage_ts_4.default.set("entries", []);
+          await storage_ts_5.default.set("entries", []);
           break;
         }
         case Boolean(recent): {
           const updated_store = store.filter((e, index) =>
             index >= parseInt(recent)
           );
-          await storage_ts_4.default.set("entries", updated_store);
+          await storage_ts_5.default.set("entries", updated_store);
           break;
         }
         case Boolean(flag): {
           const entry = store.find((e) => e.id === flag);
           if (entry) {
             const updated_store = store.filter((e) => e.id !== flag);
-            await storage_ts_4.default.set("entries", updated_store);
+            await storage_ts_5.default.set("entries", updated_store);
             const date = moment_ts_4.moment(
               entry.created,
               date_time_formats_ts_4.created_format,
@@ -10305,16 +10485,16 @@ System.register(
         }
       }
     }
-    exports_39("remove", remove);
+    exports_41("remove", remove);
     async function by(input) {
-      const store = await storage_ts_4.default.get("entries");
+      const store = await storage_ts_5.default.get("entries");
       const updated_store = store.filter((e) => !input.includes(e));
-      await storage_ts_4.default.set("entries", updated_store);
+      await storage_ts_5.default.set("entries", updated_store);
     }
     return {
       setters: [
-        function (storage_ts_4_1) {
-          storage_ts_4 = storage_ts_4_1;
+        function (storage_ts_5_1) {
+          storage_ts_5 = storage_ts_5_1;
         },
         function (find_ts_2_1) {
           find_ts_2 = find_ts_2_1;
@@ -10337,10 +10517,10 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/enums/list_types",
   [],
-  function (exports_40, context_40) {
+  function (exports_42, context_42) {
     "use strict";
     var ListTypes;
-    var __moduleName = context_40 && context_40.id;
+    var __moduleName = context_42 && context_42.id;
     return {
       setters: [],
       execute: function () {
@@ -10348,7 +10528,7 @@ System.register(
           ListTypes[ListTypes["Ordered"] = 1] = "Ordered";
           ListTypes[ListTypes["UnOrdered"] = 2] = "UnOrdered";
         })(ListTypes || (ListTypes = {}));
-        exports_40("ListTypes", ListTypes);
+        exports_42("ListTypes", ListTypes);
       },
     };
   },
@@ -10357,7 +10537,7 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/table",
   [],
-  function (exports_41, context_41) {
+  function (exports_43, context_43) {
     "use strict";
     var trailingWhitespace,
       space,
@@ -10372,7 +10552,7 @@ System.register(
       c,
       l,
       r;
-    var __moduleName = context_41 && context_41.id;
+    var __moduleName = context_43 && context_43.id;
     // Create a table from a matrix of strings.
     function markdownTable(table, options) {
       var settings = options || {};
@@ -10542,7 +10722,7 @@ System.register(
       }
       return lines.join(lineFeed);
     }
-    exports_41("default", markdownTable);
+    exports_43("default", markdownTable);
     function serialize(value) {
       return value === null || value === undefined ? "" : String(value);
     }
@@ -10601,10 +10781,10 @@ System.register(
     "https://deno.land/x/deno_markdown/src/enums/list_types",
     "https://deno.land/x/deno_markdown/src/table",
   ],
-  function (exports_42, context_42) {
+  function (exports_44, context_44) {
     "use strict";
     var list_types_ts_1, table_ts_1, Markdown;
-    var __moduleName = context_42 && context_42.id;
+    var __moduleName = context_44 && context_44.id;
     return {
       setters: [
         function (list_types_ts_1_1) {
@@ -10743,7 +10923,7 @@ System.register(
             Deno.close(file.rid);
           }
         };
-        exports_42("Markdown", Markdown);
+        exports_44("Markdown", Markdown);
       },
     };
   },
@@ -10751,9 +10931,9 @@ System.register(
 System.register(
   "https://deno.land/x/deno_markdown/src/extensions",
   [],
-  function (exports_43, context_43) {
+  function (exports_45, context_45) {
     "use strict";
-    var __moduleName = context_43 && context_43.id;
+    var __moduleName = context_45 && context_45.id;
     /**
     * Creates a block of inline code
     * @param code
@@ -10761,7 +10941,7 @@ System.register(
     function inlineCode(code) {
       return `\`${code}\``;
     }
-    exports_43("inlineCode", inlineCode);
+    exports_45("inlineCode", inlineCode);
     /**
     * Creates a string with italics
     * @param text The text you wish to be made italic
@@ -10775,7 +10955,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_43("italics", italics);
+    exports_45("italics", italics);
     /**
     * Creates a string with bold
     * @param text The text you wish to be made bold
@@ -10789,7 +10969,7 @@ System.register(
       }
       return style + text + style;
     }
-    exports_43("bold", bold);
+    exports_45("bold", bold);
     /**
     * Creates a string with a strike through
     * @param text The text you wish to be have a strike through
@@ -10798,7 +10978,7 @@ System.register(
     function strike(text) {
       return "~~" + text + "~~";
     }
-    exports_43("strike", strike);
+    exports_45("strike", strike);
     /**
     * Creates a markdown link block
     * @param altText The alt text of the link
@@ -10810,7 +10990,7 @@ System.register(
         title === undefined ? "" : ' "' + title + '"'
       })`;
     }
-    exports_43("link", link);
+    exports_45("link", link);
     /**
     * Creates a markdown image block
     * @param altText The alt text of the image
@@ -10820,7 +11000,7 @@ System.register(
     function image(altText, imageLink, title) {
       return `!${link(altText, imageLink, title)}`;
     }
-    exports_43("image", image);
+    exports_45("image", image);
     return {
       setters: [],
       execute: function () {
@@ -10836,9 +11016,9 @@ System.register(
     "https://deno.land/x/deno_markdown/src/main",
     "https://deno.land/x/deno_markdown/src/extensions",
   ],
-  function (exports_44, context_44) {
+  function (exports_46, context_46) {
     "use strict";
-    var __moduleName = context_44 && context_44.id;
+    var __moduleName = context_46 && context_46.id;
     var exportedNames_2 = {
       "ListTypes": true,
       "Markdown": true,
@@ -10850,17 +11030,17 @@ System.register(
           exports[n] = m[n];
         }
       }
-      exports_44(exports);
+      exports_46(exports);
     }
     return {
       setters: [
         function (list_types_ts_2_1) {
-          exports_44({
+          exports_46({
             "ListTypes": list_types_ts_2_1["ListTypes"],
           });
         },
         function (main_ts_1_1) {
-          exports_44({
+          exports_46({
             "Markdown": main_ts_1_1["Markdown"],
           });
         },
@@ -10880,15 +11060,15 @@ System.register(
     "https://deno.land/x/deno_markdown/mod",
     "https://deno.land/x/moment/moment",
   ],
-  function (exports_45, context_45) {
+  function (exports_47, context_47) {
     "use strict";
-    var storage_ts_5, mod_ts_8, moment_ts_5, _impexp;
-    var __moduleName = context_45 && context_45.id;
+    var storage_ts_6, mod_ts_8, moment_ts_5, _impexp;
+    var __moduleName = context_47 && context_47.id;
     async function export_entries_md(flag) {
       let markdown = new mod_ts_8.Markdown();
       const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
-      const tags = await storage_ts_5.default.get("tags");
-      const entries = await storage_ts_5.default.get("entries");
+      const tags = await storage_ts_6.default.get("tags");
+      const entries = await storage_ts_6.default.get("entries");
       const entries_to_export = entries.map((e) =>
         `[${e.created}]: **-->** ${e.text}.`
       );
@@ -10903,8 +11083,8 @@ System.register(
     }
     async function export_entries_text(flag) {
       const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
-      const tags = await storage_ts_5.default.get("tags");
-      const entries = await storage_ts_5.default.get("entries");
+      const tags = await storage_ts_6.default.get("tags");
+      const entries = await storage_ts_6.default.get("entries");
       const entries_to_export = entries.map((e) =>
         `[${e.created}]: --> ${e.text}.`
       );
@@ -10918,17 +11098,17 @@ System.register(
     async function export_entries_json(flag) {
       const export_time = moment_ts_5.moment().format("MMMM_Do_YYYY_h_mm_a");
       await Deno.copyFile(
-        "./journals/default.json",
+        "./journals/default.snpt",
         `./snippet_cli_export_${export_time}.json`,
       );
     }
     async function import_entries(flag) {
-      await Deno.copyFile(flag, `./journals/default.json`);
+      await Deno.copyFile(flag, `./journals/default.snpt`);
     }
     return {
       setters: [
-        function (storage_ts_5_1) {
-          storage_ts_5 = storage_ts_5_1;
+        function (storage_ts_6_1) {
+          storage_ts_6 = storage_ts_6_1;
         },
         function (mod_ts_8_1) {
           mod_ts_8 = mod_ts_8_1;
@@ -10944,165 +11124,7 @@ System.register(
           export_entries_md,
           export_entries_text,
         };
-        exports_45("default", _impexp);
-      },
-    };
-  },
-);
-System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
-  [],
-  function (exports_46, context_46) {
-    "use strict";
-    var __moduleName = context_46 && context_46.id;
-    return {
-      setters: [],
-      execute: function () {
-        exports_46(
-          "default",
-          `
-snippet-cli 0.9
-An entry based journaling application.
-
-USAGE:
-
-    snpt [OPTIONS] [INPUT]
-
-OPTIONS:
-
-    DISPLAY:
-
-        --today, --today
-            Display today's entries.
-
-        -a, --all
-            Display all entries since day one.
-        
-        -v, --view <option>
-            Specify how to display your entries.
-            OPTIONS:
-                - mini
-                - compact
-                - table
-                - tree (default)
-
-        --tags, --tags
-            Display a list of all your tags.
-
-    WRITE:
-
-        -w, --write <entry>
-            Write a new entry
-
-        @ or #
-            Use @ or # to create and use tags in your entries. (e.g. @deno #new_tag)
-
-        --set, -a <entry> --set <date>
-            Specify a date when writing an entry.
-
-        -e, --edit <entry_id> <updated_entry_text>
-            Edit an existing entry
-
-        -r, --remove <entry_id>
-            Remove an entry, provide the ID
-
-    SEARCH:
-
-        -d, --date
-            Display entries for a specified date (See date formats below).
-
-        -s, --search
-            Search entries by text.
-
-        -t, --tag
-            Search entries by tag.
-
-        -f and -t, --from and --to
-            Display entries between two specified dates. (See date formats below).
-
-        -l, --last
-            A flexible way to go back in time to a specific day or any number of days, weeks, months or years.
-            OPTIONS:
-                - sunday, Monday, TUESDAY, and so on.
-                - day, yeserday, 1day, 2day, 10day, 36day and so on.
-                - week, 1week, 10week, 8week and so on.
-                - month, 1month, 2month, 9month and so on.
-                - year, 1year, 2year, 5year and so on.
-
-    EXPORT/IMPORT:
-
-        -m, --markdown
-            Export your entries to a styled markdown file.
-
-        -j, --json
-            Export your entries to a restorable JSON file.
-
-        -i, --import <json_file_path>
-            Export your entries to a restorable JSON file.
-
-    EXTRA:
-
-        -c, --clear
-            Clear everything and reset snippet.
-
-        -h, --help
-            Display help to get started.
-
-    DATE FORMATS:
-
-        YYYY-MM-DD (e.g. 2020-06-16)
-        DD-MM-YYYY (e.g. 16-06-2020)
-        DD-MM-YY (e.g. 16-06-20)
-        YY-MM-DD (e.g. 20-06-16)
-        M-D (e.g. 6-17, 06-17)
-        MM-YYYY (e.g. 6-2020, 06-2020)
-        M (e.g. 6, 06, 2, 4, 09, 12)
-        YYYY (e.g. 2020, 2016)
-        YY (e.g. 20, 18, 14, 98)
-        `,
-        );
-      },
-    };
-  },
-);
-System.register(
-  "file:///home/yazid/Documents/projects/snippet-cli/src/modules/extras",
-  [
-    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/storage",
-    "file:///home/yazid/Documents/projects/snippet-cli/src/modules/help",
-  ],
-  function (exports_47, context_47) {
-    "use strict";
-    var storage_ts_6, help_ts_1, _extras;
-    var __moduleName = context_47 && context_47.id;
-    async function reset() {
-      await storage_ts_6.default.clear();
-      await Deno.remove("./journals", { recursive: true });
-      console.log("Starting from scratch..!");
-    }
-    async function help() {
-      console.log(help_ts_1.default);
-    }
-    async function set_view_mode(flag) {
-      await storage_ts_6.default.set("view_mode", flag);
-      console.log(`Default View Mode is: ${flag}`);
-    }
-    return {
-      setters: [
-        function (storage_ts_6_1) {
-          storage_ts_6 = storage_ts_6_1;
-        },
-        function (help_ts_1_1) {
-          help_ts_1 = help_ts_1_1;
-        },
-      ],
-      execute: function () {
-        _extras = {
-          set_view_mode,
-          reset,
-          help,
-        };
-        exports_47("default", _extras);
+        exports_47("default", _impexp);
       },
     };
   },
@@ -11125,7 +11147,7 @@ System.register(
       display_ts_3,
       remove_ts_1,
       import_export_ts_1,
-      extras_ts_1,
+      extras_ts_2,
       user_input_ts_2;
     var __moduleName = context_48 && context_48.id;
     return {
@@ -11145,8 +11167,8 @@ System.register(
         function (import_export_ts_1_1) {
           import_export_ts_1 = import_export_ts_1_1;
         },
-        function (extras_ts_1_1) {
-          extras_ts_1 = extras_ts_1_1;
+        function (extras_ts_2_1) {
+          extras_ts_2 = extras_ts_2_1;
         },
         function (user_input_ts_2_1) {
           user_input_ts_2 = user_input_ts_2_1;
@@ -11170,12 +11192,13 @@ System.register(
             );
             break;
           }
-          case Boolean(user_input_ts_2.default.find.by_tag): {
+          case Boolean(user_input_ts_2.default.find._by_tag.by_tag): {
             display_ts_3.default.render(
               await find_ts_3.default.by_tag(
-                user_input_ts_2.default.find.by_tag,
+                user_input_ts_2.default.find._by_tag.by_tag,
+                user_input_ts_2.default.find._by_tag.args,
               ),
-              user_input_ts_2.default.find.by_tag,
+              user_input_ts_2.default.find._by_tag.by_tag,
             );
             break;
           }
@@ -11264,17 +11287,17 @@ System.register(
             break;
           }
           case Boolean(user_input_ts_2.default.extras.set_default_view): {
-            extras_ts_1.default.set_view_mode(
+            extras_ts_2.default.set_view_mode(
               user_input_ts_2.default.extras.set_default_view,
             );
             break;
           }
           case Boolean(user_input_ts_2.default.extras.clear): {
-            extras_ts_1.default.reset();
+            extras_ts_2.default.reset();
             break;
           }
           case Boolean(user_input_ts_2.default.extras.help): {
-            extras_ts_1.default.help();
+            extras_ts_2.default.help();
             break;
           }
           default: {
