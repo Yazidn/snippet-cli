@@ -87,7 +87,7 @@ An entry based journaling application for your terminal built in [Deno](https://
 - Search for an entry. `-s <text>, --search <text>`
     - **e.g. `snpt -s hello`**
 
-- Filter entries by tag. `-t <tag>, --tag <tag>`
+- Filter entries by tag. `-t <tag> <tag_2>.., --tag <tag_1> <tag_2>..`
     - **e.g. `snpt -t great_apps`**
 
 - Display entries between two specified dates. (See date formats below). `-f <date>, --from <date> & -u <date>, --until <date>`
