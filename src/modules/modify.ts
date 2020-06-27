@@ -9,21 +9,12 @@ import { moment } from "https://deno.land/x/moment/moment.ts";
 import display from "./display.ts";
 import find from "./find.ts";
 import regex from "./regular_expressions.ts";
+import extras from "./extras.ts";
 
 async function write(flag: any, subflags: any) {
-  let tags: any[] = [];
-  let is_tag: any;
-
-  do {
-    is_tag = regex.rx_tag.exec(flag);
-    if (is_tag) tags.push(is_tag[2]);
-  } while (is_tag);
-  tags = [...new Set(tags)];
-
+  let tags: string[] = extras.extract_tags(flag);
   const store = await db.get("entries");
-
-  const on = subflags.on;
-  const at = subflags.at;
+  const { on, at } = subflags;
 
   const write_moment = moment();
 
@@ -63,8 +54,10 @@ async function edit(flag: any, subflags: any) {
   switch (true) {
     case Boolean(recent): {
       const entry = store.find((e: any, index: number) => index === 0);
+      let tags: string[] = extras.extract_tags(recent);
       if (entry) {
         entry.text = recent;
+        entry.tags = tags;
         const semi_updated_store = store.filter(
           (e: any, index: number) => index !== 0
         );
@@ -102,8 +95,10 @@ async function edit(flag: any, subflags: any) {
 
     default: {
       const entry = store.find((e: any) => e.id === flag);
+      let tags: string[] = extras.extract_tags(args[0]);
       if (entry) {
         entry.text = args[0];
+        entry.tags = tags;
         const semi_updated_store = store.filter((e: any) => e.id !== flag);
 
         after_edit(entry, semi_updated_store);
