@@ -43,7 +43,10 @@ input = {
   },
   find: {
     by_text: flags.s || flags.search,
-    by_tag: flags.t || flags.tag,
+    _by_tag: {
+      by_tag: flags.t || flags.tag,
+      args,
+    },
     by_date: flags.d || flags.date || flags.o || flags.on,
     by_period: {
       from: flags.f || flags.from,

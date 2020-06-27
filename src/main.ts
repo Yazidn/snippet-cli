@@ -17,8 +17,11 @@ switch (true) {
     break;
   }
 
-  case Boolean(input.find.by_tag): {
-    display.render(await find.by_tag(input.find.by_tag), input.find.by_tag);
+  case Boolean(input.find._by_tag.by_tag): {
+    display.render(
+      await find.by_tag(input.find._by_tag.by_tag, input.find._by_tag.args),
+      input.find._by_tag.by_tag
+    );
     break;
   }
 

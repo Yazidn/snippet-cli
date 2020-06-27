@@ -100,9 +100,12 @@ async function by_text(flag: any) {
   });
 }
 
-async function by_tag(flag: any) {
+async function by_tag(flag: any, args?: any) {
   const store = await db.get("entries");
-  return store.filter((e: any) => e.tags.includes(flag));
+
+  return store.filter((e: any) =>
+    e.tags.some((t: string) => [flag, ...args].includes(t))
+  );
 }
 
 const _search = {
