@@ -1,5 +1,5 @@
 # snippet-cli
-An entry based journaling application for your console/terminal built in [Deno](https://deno.land).
+An entry based journaling application for your terminal built in [Deno](https://deno.land).
 
 ## Installation
 1. You will need [Deno](https://deno.land) to install and run snippet.
@@ -48,6 +48,12 @@ An entry based journaling application for your console/terminal built in [Deno](
 
 - Edit an entry. `-e, --edit <entry_id> <updated_entry_text>`
     - **e.g. `snpt -e 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d "Hello again, world!"`**
+
+- Edit the most recent entry. `-e --recent, --edit --recent <updated_entry_text>`
+    - **e.g. `snpt -e --recent "Hello again, world!"`**
+
+- Edit a tag. `-e @<tag> <updated_tag>, --edit @<tag> <updated_tag>`
+    - **e.g. `snpt -e @summer winter`**
 
 ### Remove
 - Remove an entry. `-r, --remove <entry_id>`
@@ -98,6 +104,9 @@ An entry based journaling application for your console/terminal built in [Deno](
 ### Import & Export
 - Export your entries to a styled markdown file. `-m, --markdown`
     - **e.g. `snpt --markdown`**
+
+- Export your entries to a plain text file. (.txt) `-m, --markdown`
+    - **e.g. `snpt --text`**
 
 - Export your entries to a restorable JSON file. `-j, --json`
     - **e.g. `snpt --json`**
