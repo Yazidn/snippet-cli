@@ -56,7 +56,9 @@ async function write(flag: any, subflags: any) {
 
 async function edit(flag: any, subflags: any) {
   const store = await db.get("entries");
+  const t_store = await db.get("tags");
   const { recent, args } = subflags;
+  const is_tag: any = regex.rx_tag.exec(flag);
 
   switch (true) {
     case Boolean(recent): {
@@ -69,6 +71,40 @@ async function edit(flag: any, subflags: any) {
 
         after_edit(entry, semi_updated_store);
       } else console.log("Didn't find any recent entries.");
+      break;
+    }
+
+    case Boolean(is_tag): {
+      const _tag = is_tag[2];
+      let tag = t_store.find((t: string) => t === _tag);
+      if (tag) {
+        // Change tag store
+        tag = args[0];
+        const semi_updated_tag_store = t_store.filter(
+          (t: string) => t !== _tag
+        );
+        await db.set("tags", [tag, ...semi_updated_tag_store]);
+
+        // Change entries's tags array
+        const entries_with_said_tag = await find.by_tag(_tag);
+        const modified_entries = entries_with_said_tag.map((e: any) => {
+          e.tags = e.tags.filter((t: string) => t !== _tag);
+          e.tags.push(args[0]);
+          e.text.replace(regex.rx_tag, `${is_tag[1]}${args[0]}`);
+          return e;
+        });
+
+        // Delete modified entries from store
+        const updated_store = store.filter(
+          (e: any) => !e.tags.includes(_tag)
+        );
+        // !modified_entries.includes(e)
+        // store.filter((e: any) => e.tags.includes(flag));
+
+        // Add them again
+        await db.set("entries", [...modified_entries, updated_store]);
+        // Save
+      }
       break;
     }
 
