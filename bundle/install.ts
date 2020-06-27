@@ -10132,7 +10132,9 @@ System.register(
     }
     async function edit(flag, subflags) {
       const store = await storage_ts_3.default.get("entries");
+      const t_store = await storage_ts_3.default.get("tags");
       const { recent, args } = subflags;
+      const is_tag = regular_expressions_ts_2.default.rx_tag.exec(flag);
       switch (true) {
         case Boolean(recent): {
           const entry = store.find((e, index) => index === 0);
@@ -10142,6 +10144,29 @@ System.register(
             after_edit(entry, semi_updated_store);
           } else {
             console.log("Didn't find any recent entries.");
+          }
+          break;
+        }
+        case Boolean(is_tag): {
+          const _tag = is_tag[2];
+          let tag = t_store.find((t) => t === _tag);
+          if (tag) {
+            tag = args[0];
+            const semi_updated_tag_store = t_store.filter((t) => t !== _tag);
+            await storage_ts_3.default.set(
+              "tags",
+              [tag, ...semi_updated_tag_store],
+            );
+            const rx_tag_dynamic = new RegExp(`(@|#)${_tag}`, "g");
+            const entries_with_said_tag = await find_ts_1.default.by_tag(_tag);
+            const modified_entries = entries_with_said_tag.map((e) => {
+              e.tags = e.tags.filter((t) => t !== _tag);
+              e.tags.push(args[0]);
+              e.text = e.text.replace(rx_tag_dynamic, `${is_tag[1]}${args[0]}`);
+              return e;
+            });
+            const updated_store = store.filter((e) => !e.tags.includes(_tag));
+            await storage_ts_3.default.set("entries", updated_store);
           }
           break;
         }
@@ -10936,7 +10961,7 @@ System.register(
         exports_46(
           "default",
           `
-snippet-cli 0.1
+snippet-cli 0.9
 An entry based journaling application.
 
 USAGE:
@@ -11138,6 +11163,13 @@ System.register(
             );
             break;
           }
+          case Boolean(user_input_ts_2.default.modify._edit.edit): {
+            modify_ts_1.default.edit(
+              user_input_ts_2.default.modify._edit.edit,
+              user_input_ts_2.default.modify._edit.sub,
+            );
+            break;
+          }
           case Boolean(user_input_ts_2.default.find.by_tag): {
             display_ts_3.default.render(
               await find_ts_3.default.by_tag(
@@ -11185,13 +11217,6 @@ System.register(
             modify_ts_1.default.write(
               user_input_ts_2.default.modify._write.write,
               user_input_ts_2.default.modify._write.sub,
-            );
-            break;
-          }
-          case Boolean(user_input_ts_2.default.modify._edit.edit): {
-            modify_ts_1.default.edit(
-              user_input_ts_2.default.modify._edit.edit,
-              user_input_ts_2.default.modify._edit.sub,
             );
             break;
           }
