@@ -78,32 +78,24 @@ async function edit(flag: any, subflags: any) {
       const _tag = is_tag[2];
       let tag = t_store.find((t: string) => t === _tag);
       if (tag) {
-        // Change tag store
         tag = args[0];
         const semi_updated_tag_store = t_store.filter(
           (t: string) => t !== _tag
         );
         await db.set("tags", [tag, ...semi_updated_tag_store]);
 
-        // Change entries's tags array
+        const rx_tag_dynamic = new RegExp(`(@|#)${_tag}`, "g");
         const entries_with_said_tag = await find.by_tag(_tag);
         const modified_entries = entries_with_said_tag.map((e: any) => {
           e.tags = e.tags.filter((t: string) => t !== _tag);
           e.tags.push(args[0]);
-          e.text.replace(regex.rx_tag, `${is_tag[1]}${args[0]}`);
+          e.text = e.text.replace(rx_tag_dynamic, `${is_tag[1]}${args[0]}`);
           return e;
         });
 
-        // Delete modified entries from store
-        const updated_store = store.filter(
-          (e: any) => !e.tags.includes(_tag)
-        );
-        // !modified_entries.includes(e)
-        // store.filter((e: any) => e.tags.includes(flag));
+        const updated_store = store.filter((e: any) => !e.tags.includes(_tag));
 
-        // Add them again
-        await db.set("entries", [...modified_entries, updated_store]);
-        // Save
+        await db.set("entries", updated_store);
       }
       break;
     }
