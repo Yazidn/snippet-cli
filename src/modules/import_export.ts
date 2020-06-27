@@ -39,13 +39,13 @@ async function export_entries_text(flag: any) {
 async function export_entries_json(flag: any) {
   const export_time = moment().format("MMMM_Do_YYYY_h_mm_a");
   await Deno.copyFile(
-    "./journals/default.json",
+    "./journals/default.snpt",
     `./snippet_cli_export_${export_time}.json`
   );
 }
 
 async function import_entries(flag: any) {
-  await Deno.copyFile(flag, `./journals/default.json`);
+  await Deno.copyFile(flag, `./journals/default.snpt`);
 }
 
 const _impexp = {

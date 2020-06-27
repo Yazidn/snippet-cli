@@ -1,7 +1,7 @@
 import { Store } from "https://cdn.depjs.com/store/mod.ts";
 
 const init = async () => {
-  const default_journal = new Store({ name: "default.json", path: "./journals" });
+  const default_journal = new Store({ name: "default.snpt", path: "./journals" });
 
   if (!(await default_journal.has("entries")))
     await default_journal.set("entries", []);
