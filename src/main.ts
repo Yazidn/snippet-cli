@@ -12,6 +12,11 @@ switch (true) {
     break;
   }
 
+  case Boolean(input.modify._edit.edit): {
+    modify.edit(input.modify._edit.edit, input.modify._edit.sub);
+    break;
+  }
+
   case Boolean(input.find.by_tag): {
     display.render(await find.by_tag(input.find.by_tag), input.find.by_tag);
     break;
@@ -41,13 +46,10 @@ switch (true) {
     break;
   }
 
-  case Boolean(input.modify._write.write || input.modify._write.sub.args.length): {
+  case Boolean(
+    input.modify._write.write || input.modify._write.sub.args.length
+  ): {
     modify.write(input.modify._write.write, input.modify._write.sub);
-    break;
-  }
-
-  case Boolean(input.modify._edit.edit): {
-    modify.edit(input.modify._edit.edit, input.modify._edit.sub);
     break;
   }
 

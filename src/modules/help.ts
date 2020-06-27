@@ -1,5 +1,5 @@
 export default `
-snippet-cli 0.1
+snippet-cli 0.9
 An entry based journaling application.
 
 USAGE:
