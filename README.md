@@ -76,14 +76,14 @@ Check out the **[unstable](https://github.com/Yazidn/snippet-cli/tree/unstable)*
     - **e.g. `snpt -r --date 6-12`** *(Removes all entries from june 12th, 2020.)*
 
 - Remove entries between 2 dates. `-r, --from <first_date> --until <second_date>`
-    - **e.g. `snpt -r -f 4-2020 -u 6-2020`**
+    - **e.g. `snpt -r -f 1-2020 -u 3-2020`**
 
 - Remove entries using --last command discussed below. `-r, --last <command>`
     - **e.g. `snpt -r --last thursday`**
 
 ### Search
 - Display entries for a specified date *(See date formats below)*. `-d, --date`
-    - **e.g. `snpt -d 2020-04-21`**
+    - **e.g. `snpt -d 2020-01-01`**
 
 - Search for an entry. `-s <text>, --search <text>`
     - **e.g. `snpt -s hello`**
@@ -92,7 +92,7 @@ Check out the **[unstable](https://github.com/Yazidn/snippet-cli/tree/unstable)*
     - **e.g. `snpt -t great_apps`**
 
 - Display entries between two specified dates. (See date formats below). `-f <date>, --from <date> & -u <date>, --until <date>`
-    - **e.g. `snpt --from 04-14 --until`04-24**
+    - **e.g. `snpt --from 01-01 --until`01-16**
 
 - See entries from a specific day or any number of days, weeks, months or years back. `-l <option>, --last <option>`
     - **Options:**
@@ -125,20 +125,16 @@ Check out the **[unstable](https://github.com/Yazidn/snippet-cli/tree/unstable)*
     - **e.g. `snpt -h`**
 
 ### Date Formats & Time Formats
-- YYYY-MM-DD **(e.g. 2020-04-14)**
-- DD-MM-YYYY **(e.g. 16-06-2020)**
-- DD-MM-YY **(e.g. 16-06-20)**
-- YY-MM-DD **(e.g. 20-06-16)**
-- M-D **(e.g. 6-17, 06-17)**
-- MM-YYYY **(e.g. 6-2020, 06-2020)**
-- M **(e.g. 6, 06, 2, 4, 09, 12)**
-- YYYY **(e.g. 2020, 2016)**
-- YY **(e.g. 20, 18, 14, 98)**
+- YYYY-MM-DD **(e.g. 2020-01-01)**
+- DD-MM-YYYY **(e.g. 01-01-2020)**
+- DD-MM-YY **(e.g. 01-01-20)**
+- YY-MM-DD **(e.g. 20-01-01)**
+- M-D **(e.g. 1-01, 01-01)**
+- MM-YYYY **(e.g. 01-2020, 01-2020)**
+- M **(e.g. 1, 01, 12)**
+- YYYY **(e.g. 2020, 2011)**
+- YY **(e.g. 20, 18, 14, 99)**
 - h a **(e.g. 6 am, 5pm)**
 - h:mm a **(e.g. 5:02 am)**
 - h:mm **(e.g. 16:04)**
 - h:mm:ss a **(e.g. 11:22:22 pm)**
-
-## Notes
-- It is in active development, new features and fixes are being added regularly.
-- A GUI version is in the works.
